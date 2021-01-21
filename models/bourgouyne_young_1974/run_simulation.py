@@ -1,24 +1,23 @@
 import matplotlib.pyplot as plt
-
 from simulation import simulation
 
 
 ## Drilling parameters
-D = 0
-D_final = 1000
-rho = 1000
-rpm = 500
-q = 300
-wob_init = 30
-wob = 100
-gp = 10
-db = 1
+depth = 0.0
+depth_final = 1000.0
+rho = 10.0
+rpm = 3.0
+q = 30.0
+wob_init = 0.6
+wob = 5
+gp = 1.0
+db = 1.0
 db_init = db
-delta_t = 1
+delta_t = 1.0
 h = 0.001
-v = 10
+v = 10.0
 
-time_dict, depth_dict, rop_dict = simulation(D,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, D_final, delta_t)
+time_dict, depth_dict, rop_dict = simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delta_t)
 
 plt.figure()
 plt.subplot(211)
@@ -30,5 +29,5 @@ plt.subplot(212)
 plt.plot(time_dict, depth_dict)
 plt.xlabel('Time')
 plt.ylabel('Depth')
-#plt.show()
+plt.show()
 

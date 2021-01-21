@@ -1,6 +1,7 @@
 import numpy as np
 import random
 
+
 def generate_range():
     ## Set ranges
     range_a1 = np.array([0.5,1.9])
