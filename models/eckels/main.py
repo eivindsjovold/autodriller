@@ -20,7 +20,6 @@ def rate_of_penetration(a,b,c,K, k, wob, rpm, q, rho, d_n, my):
 
 def simulation(a,b,c,K, k, wob, rpm, q, rho, d_n, my, D_final, delta_t):
     D = 0
-    counter = 0
     t = 0
     depth = []
     t_dict = []
@@ -28,12 +27,10 @@ def simulation(a,b,c,K, k, wob, rpm, q, rho, d_n, my, D_final, delta_t):
     while D < D_final:
         rop = rate_of_penetration(a,b,c,K, k, wob, rpm, q, rho, d_n, my)
         D += rop*delta_t
-        t += counter*delta_t
+        t += delta_t
         rate.append(rop)
         depth.append(D)
         t_dict.append(t)
-        counter += 1
-    print('done')
     return t_dict, depth, rate
 
 def plot(a,b,c,K, k, wob, rpm, q, rho, d_n, my, D_final, delta_t):
