@@ -3,30 +3,34 @@ import numpy as np
 
 def jet_force(rho,q,v):
     return 0.000515*rho*q*v
+## v = nozzle velocity
     
-def f1(a1):
+def f1(a1): #formation strenght
     return np.exp(2.303*a1)
 
-def f2(depth,a2):
+def f2(depth,a2):  
     return np.exp(2.303*a2*(10000-depth))
 
-def f3(gp, a3, depth):
-    return np.exp(2.303*a3*(depth**0.69)*(gp-9))
+def f3(pore_pressure_gradient, a3, depth):
+    return np.exp(2.303*a3*(depth**0.69)*(pore_pressure_gradient-(9))) #*(0.45359/0.003785))))
 
-def f4(a4,depth,gp,rho):
-    return np.exp(2.303*a4*depth*(gp-rho))
+def f4(a4,depth,pore_pressure_gradient,rho):
+    return np.exp(2.303*a4*depth*(pore_pressure_gradient-rho))
+
+## Rho = equivalent cirulating density
 
 def f5(a5, wob, wob_init, db, db_init):
     wob_diameter = wob/db
     wob_threshold = wob_init/db_init
     temp = ((wob_diameter - wob_threshold)/( 4.0 - wob_threshold))
-    return np.power(temp , a5)
+    return np.power(temp , a5) # lbf/in *(4.44822/(0.0254*1000))  
 
 def f6(a6, rpm):
     return np.power(rpm/60, a6)
 
 def f7(a7, h):
     return np.exp(-a7*h)
+## h = fractional tooth dullness
 
 def f8(a8, rho, q, v):
     return np.power(jet_force(rho,q,v)/1000, a8)
