@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 from simulation import simulation
-from read_from_case import read_from_case
+from bourgouyne_young_1974.read_from_case import read_from_case
 
 case = 'changing_formation'
+model = 'BY'
 
 
 ## Drilling parameters
@@ -19,9 +20,18 @@ db_init = db    #bit outer diameter in inches
 delta_t = 1/3600 #hrs
 h = 0.0001
 v = 0.1  #feet/s
+a = 1
+b = 1
+c = 1
+K = 1
+k = 1
+my = 0.4
+
+
 
 formation_change = read_from_case()
-time_dict, depth_dict, rop_dict, model_parameters = simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delta_t, case, formation_change)
+time_dict, depth_dict, rop_dict, model_parameters = simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delta_t, case, formation_change,a,b,c,k,K,my,model)
+
 
 plt.figure()
 plt.subplot(211)

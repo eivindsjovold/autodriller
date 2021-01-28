@@ -1,7 +1,7 @@
 import csv
 
 def read_from_case():
-    with open('case.csv', newline = '') as csvfile:
+    with open('bourgouyne_young_1974\\case.csv', newline = '') as csvfile:
         reader = csv.reader(csvfile, delimiter = ',')
         header = next(reader)
         depth_change =[]
