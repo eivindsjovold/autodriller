@@ -7,6 +7,7 @@ model = 'BY'
 
 
 ## Drilling parameters
+#BY
 depth = 0.0 #feet
 depth_final = 500.0 #feet
 rho = 22 
@@ -19,6 +20,7 @@ db = 1.0
 db_init = db    #bit outer diameter in inches
 delta_t = 1/3600 #hrs
 h = 0.0001
+#Eckel
 v = 0.1  #feet/s
 a = 1
 b = 1
