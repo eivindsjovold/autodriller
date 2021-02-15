@@ -6,14 +6,15 @@ from models.bourgouyne_young_1974.read_from_case import read_from_case
 
 class TestEnv(gym.Env):
 
-    MAX_WOB = 300
-    MAX_RPM = 300
+    metadata = {'render.modes': ['human', 'ansi']}
+    MAX_WOB = 20
+    MAX_RPM = 600
     MAX_Q = 300
     MAX_ROP = 300
 
-    MIN_WOB = 150
-    MIN_RPM = 150
-    MIN_Q = 150
+    MIN_WOB = 10
+    MIN_RPM = 550
+    MIN_Q = 250
 
     def __init__(self):
         self.viewer = None
@@ -27,18 +28,18 @@ class TestEnv(gym.Env):
         
         ## Formation parameters
         formation_change = read_from_case()
-        self.a1 = formation_change[1][1]
-        self.a2 = formation_change[1][2]
-        self.a3 = formation_change[1][3]
-        self.a4 = formation_change[1][4]
-        self.a5 = formation_change[1][5]
-        self.a6 = formation_change[1][6]
-        self.a7 = formation_change[1][7]
-        self.a8 = formation_change[1][8]
+        self.a1 = formation_change[1][6]
+        self.a2 = formation_change[2][6]
+        self.a3 = formation_change[3][6]
+        self.a4 = formation_change[4][6]
+        self.a5 = formation_change[5][6]
+        self.a6 = formation_change[6][6]
+        self.a7 = formation_change[7][6]
+        self.a8 = formation_change[8][6]
 
         
         ## Drilling parameters
-        self.depth_final = 500.0 #feet
+        self.depth_final = 10 #feet
         self.rho = 22 
         self.wob_init = 0.1 #10^3 lbf/in
         self.gp = 1.0        #lbm/gal
@@ -46,7 +47,7 @@ class TestEnv(gym.Env):
         self.db_init = self.db    #bit outer diameter in inches
         self.delta_t = 1/3600 #hrs
         self.h = 0.0001
-        self.velocity_noz = 1
+        self.velocity_noz = 0.1
     
     def isDone(self):
         if self.state[0] >= self.depth_final:
@@ -71,8 +72,9 @@ class TestEnv(gym.Env):
         self.state = np.zeros(2)
         return self.state
 
-    def render(self):
-        print( str(' Depth : ') + self.state[0] + str('\n'))
-        print( str(' ROP : ') + self.state[1] + str('\n'))
+    def render(self, mode = 'human'):
+        print( str(' Depth : ') + str(self.state[0]) + str('\n'))
+        print( str(' ROP : ') + str(self.state[1]) + str('\n'))
+        print(self.env.step(self.action(action)))
 
         
