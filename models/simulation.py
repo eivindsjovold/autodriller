@@ -1,6 +1,6 @@
-from bourgouyne_young_1974.rate_of_penetration import rate_of_penetration
-from bourgouyne_young_1974.generate_parameter import generate_range
-from eckels.eckel import rate_of_penetration_eckel
+from models.bourgouyne_young_1974.rate_of_penetration import rate_of_penetration
+from models.bourgouyne_young_1974.generate_parameter import generate_range
+from models.eckels.eckel import rate_of_penetration_eckel
 import numpy as np
 
 
@@ -18,7 +18,6 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             ##initialize parameters
             a1,a2,a3,a4,a5,a6,a7,a8 = generate_range()
             model_parameters = np.array([a1,a2,a3,a4,a5,a6,a7,a8])
-
             while depth < depth_final:
                 rop = rate_of_penetration(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v)
                 depth += rop*delta_t

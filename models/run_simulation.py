@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-from simulation import simulation
-from bourgouyne_young_1974.read_from_case import read_from_case
+from models.simulation import simulation
+from models.bourgouyne_young_1974.read_from_case import read_from_case
 
-case = 'changing_formation'
+case = 'uniform'
 model = 'BY'
 
 
@@ -46,5 +46,5 @@ plt.plot(time_dict, depth_dict)
 plt.xlabel('Time')
 plt.ylabel('Depth')
 
-plt.savefig('figures/rop_test.png')
+plt.savefig('models\\figures\\rop_test.png')
 plt.show()
