@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name = 'testing_env',
-    version = '0.0.1', 
+setup(name = 'rop_envs',
+    version = '0.0.0', 
     install_requires = ['gym'],
     author = 'eivindsjovold')

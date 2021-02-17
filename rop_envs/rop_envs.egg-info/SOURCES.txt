@@ -1,0 +1,6 @@
+setup.py
+rop_envs.egg-info/PKG-INFO
+rop_envs.egg-info/SOURCES.txt
+rop_envs.egg-info/dependency_links.txt
+rop_envs.egg-info/requires.txt
+rop_envs.egg-info/top_level.txt

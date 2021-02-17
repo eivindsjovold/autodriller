@@ -1,3 +1,6 @@
 __pycache__
 .vscode
 .zip
+.ipynb_checkpoints/
+first-dummy-test-DDPG.zip
+notebook.ipynb
