@@ -8,15 +8,20 @@ class EckelEnv(gym.Env):
 
     metadata = {'render.modes': ['human', 'ansi']}
     
-    MAX_WOB = 20
+    MAX_WOB = 160
     MAX_RPM = 650
-    MAX_Q = 400
+    MAX_Q = 334
 
-    MIN_WOB = 5
-    MIN_RPM = 150
+    MIN_WOB = 0
+    MIN_RPM = 40
     MIN_Q = 100
+    
 
     def __init__(self):
+        self.viewer = None
+        self.state = np.zeros(2)
+        self.seed()
+        
         #Eckel
         self.depth_final = 100
         self.delta_t = 1 /3600
@@ -29,33 +34,30 @@ class EckelEnv(gym.Env):
         self.my = 0.4
         self.d_n = 1.0
         self.rho = 22
-        self.a11 = 0.05
+        self.a11 = 0.005
         self.a22 = 0.05
         self.a33 = 0.05
 
-        self.state = np.zeros(2)
-
-        high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q], dtype=np.float32)
-        low = np.array([self.MIN_WOB, self.MIN_RPM, self.MIN_Q], dtype=np.float32)
+        #high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q], dtype=np.float32)
+        #low = np.array([self.MIN_WOB, self.MIN_RPM, self.MIN_Q], dtype=np.float32)
         self.observation_space = spaces.Box(low = 0, high = np.inf, shape = (2,), dtype=np.float32)
-        self.action_space = spaces.Box(low = low, high = high, dtype = np.float32)
+        self.action_space = spaces.Box(low = self.MIN_WOB, high = self.MAX_WOB, shape = (1,), dtype = np.float32)
     
 
 
     def step(self,action):
-        rpm = action[1]
-        wob = action[0]
-        q = action[2]
-
+        wob = action
+        rpm = self.MIN_RPM
+        q = self.MAX_Q
         depth = self.state[0]
-        rop = rate_of_penetration_eckel(self.a,self.b,self.c,self.K, self.k, wob, rpm, q, self.rho, self.d_n, self.my)
+        rop = rate_of_penetration_eckel(self.a,self.b,self.c,self.K, self.k, wob, rpm, q, self.rho, self.d_n, self.my, self.a11)
         depth += rop*self.delta_t
-        self.state = np.array([depth, rop])
-        reward = rop
-        obs = self.state
+        self.state[0] = depth
+        self.state[1] = rop
         done = self.isDone()
+        reward = rop/100
 
-        return obs, reward, done, {}
+        return self.state, reward, done, {}
 
     def render(self, mode = 'human'):
         print( str(' Depth : ') + str(self.state[0]) + str('\n'))
@@ -66,7 +68,7 @@ class EckelEnv(gym.Env):
         return self.state
 
     def isDone(self):
-        if self.depth_final <= self.state[0]:
+        if self.depth_final >= self.state[0]:
             return False
         else:
             return True

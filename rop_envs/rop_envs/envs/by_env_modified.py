@@ -29,7 +29,7 @@ class ByModEnv(gym.Env):
 
 
         ## Drilling parameters
-        self.depth_final = 500 #feet
+        self.depth_final = 0.5 #feet
         self.rho = 22 
         self.wob_init = 0.1 #10^3 lbf/in
         self.gp = 1.0        #lbm/gal
@@ -56,6 +56,7 @@ class ByModEnv(gym.Env):
 
     def step(self, action):
         depth = self.state[0]
+        print(type(depth))
         rpm = action[1]
         wob = action[0]
         q = action[2]
@@ -77,7 +78,7 @@ class ByModEnv(gym.Env):
         return self.state
 
     def isDone(self):
-        if self.depth_final <= self.state[0]:
+        if self.depth_final >= self.state[0]:
             return False
         else:
             return True

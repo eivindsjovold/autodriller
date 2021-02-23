@@ -40,9 +40,10 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
         depth_final = 1000
         model_parameters = [a,b,c,k,K]
         while depth < depth_final:
-            rop = rate_of_penetration_eckel(a,b,c,K, k, wob, rpm, q, rho, db, my)
+            rop = rate_of_penetration_eckel(a,b,c,K, k, wob, rpm, q, rho, db, my, a11)
             depth += rop*delta_t
             t += delta_t
+            wob += 0.5
             depth_dict.append(depth)
             rop_dict.append(rop)
             time_dict.append(t)
