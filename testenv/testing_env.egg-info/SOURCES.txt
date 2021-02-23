@@ -1,6 +1,0 @@
-setup.py
-testing_env.egg-info/PKG-INFO
-testing_env.egg-info/SOURCES.txt
-testing_env.egg-info/dependency_links.txt
-testing_env.egg-info/requires.txt
-testing_env.egg-info/top_level.txt
