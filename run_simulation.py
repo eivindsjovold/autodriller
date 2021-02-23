@@ -36,7 +36,6 @@ a33 = 0.05
 
 formation_change = read_from_case()
 time_dict, depth_dict, rop_dict, model_parameters = simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delta_t, case, formation_change,a,b,c,k,K,my,model,a11,a22,a33)
-print(rop_dict)
 
 plt.figure()
 plt.subplot(211)

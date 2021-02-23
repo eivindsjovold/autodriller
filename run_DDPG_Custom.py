@@ -20,18 +20,19 @@ action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n
 
 model = DDPG('MlpPolicy', env, action_noise=action_noise, verbose=1)
 #model = PPO('MlpPolicy', env, verbose = 1)
-model.learn(total_timesteps = 1000, log_interval=1)
+model.learn(total_timesteps = 10000, log_interval=1)
 
 mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=1)
 print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
 
 
-model.save("first-dummy-test-DDPG")
+model.save("test-DDPG")
 env = model.get_env()
 del model
 
-obs = env.reset()
+model = DDPG.load('test-DDPG')
 
+obs = env.reset()
 for i in range(0,500): #while True:
     action, _states = model.predict(obs)
     obs, rewards, dones, info = env.step(action)

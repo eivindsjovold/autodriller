@@ -23,7 +23,7 @@ class EckelEnv(gym.Env):
         self.seed()
         
         #Eckel
-        self.depth_final = 100
+        self.depth_final = 5
         self.delta_t = 1 /3600
         self.v = 0.1  #feet/s
         self.a = 1
@@ -41,8 +41,10 @@ class EckelEnv(gym.Env):
         #high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q], dtype=np.float32)
         #low = np.array([self.MIN_WOB, self.MIN_RPM, self.MIN_Q], dtype=np.float32)
         self.observation_space = spaces.Box(low = 0, high = np.inf, shape = (2,), dtype=np.float32)
+        ###NB Blir negativ på 171 med dette opsettet.
         self.action_space = spaces.Box(low = self.MIN_WOB, high = self.MAX_WOB, shape = (1,), dtype = np.float32)
-    
+        #self.action_space = spaces.Discrete(170)
+        ###NB Max WOB i denne casen: 117.61340377001153
 
 
     def step(self,action):
@@ -56,7 +58,6 @@ class EckelEnv(gym.Env):
         self.state[1] = rop
         done = self.isDone()
         reward = rop/100
-
         return self.state, reward, done, {}
 
     def render(self, mode = 'human'):
