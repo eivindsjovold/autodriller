@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 from models.simulation import simulation
 from models.bourgouyne_young_1974.read_from_case import read_from_case
 
-case = 'uniform'
-model = 'BY'
+case = 'Q'
+model = 'eckel'
 
 
 ## Drilling parameters
@@ -29,8 +29,8 @@ K = 1
 k = 1
 my = 0.4
 a11 = 0.005
-a22 = 0.5
-a33 = 0.000005
+a22 = 0.005
+a33 = 0.005
 
 
 

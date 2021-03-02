@@ -41,7 +41,7 @@ class ByModEnv(gym.Env):
         self.velocity_noz = 0.1
         self.a11 = 0.05
         self.a22 = 0.05
-        self.a33 = 0.05
+        self.a33 = 0.0005
 
         # Formation parameters
         formation_change = read_from_case()

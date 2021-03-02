@@ -13,7 +13,7 @@ class EckelEnvDisc(gym.Env):
     MAX_Q = 334
 
     MIN_WOB = 0
-    MIN_RPM = 40
+    MIN_RPM = 37.5
     MIN_Q = 100
     
 
@@ -35,8 +35,8 @@ class EckelEnvDisc(gym.Env):
         self.d_n = 1.0
         self.rho = 22
         self.a11 = 0.005
-        self.a22 = 0.05
-        self.a33 = 0.05
+        self.a22 = 0.005
+        self.a33 = 0.005
 
         #high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q], dtype=np.float32)
         #low = np.array([self.MIN_WOB, self.MIN_RPM, self.MIN_Q], dtype=np.float32)
@@ -57,6 +57,9 @@ class EckelEnvDisc(gym.Env):
         self.state[1] = rop
         done = self.isDone()
         reward = rop/100
+        if rop < 10:
+            done = True
+            reward = -1
         return self.state, reward, done, {}
 
     def render(self, mode = 'human'):
