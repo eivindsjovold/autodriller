@@ -11,7 +11,7 @@ import gym
 import testenv
 import rop_envs
 
-env = gym.make('eckel-v0')
+env = gym.make('by-v0')
 #check_env(env)
 
 n_actions = env.action_space.shape[-1]

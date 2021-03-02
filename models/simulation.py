@@ -10,20 +10,31 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
     time_dict = []
     depth_dict = []
     rop_dict = []
+    rpm_dict = []
     model_parameters = []
     t = 0.0
     
     if model == 'BY':
         if case == 'uniform':
             ##initialize parameters
-            a1,a2,a3,a4,a5,a6,a7,a8 = generate_range()
+            #a1,a2,a3,a4,a5,a6,a7,a8 = generate_range()
+            a1 = formation_change[1][1]
+            a2 = formation_change[2][1]
+            a3 = formation_change[3][1]
+            a4 = formation_change[4][1]
+            a5 = formation_change[5][1]
+            a6 = formation_change[6][1]
+            a7 = formation_change[7][1]
+            a8 = formation_change[8][1]
             model_parameters = np.array([a1,a2,a3,a4,a5,a6,a7,a8])
-            while depth < depth_final:
+            #while depth < depth_final:
+            for q in range(5,2500):
                 rop = rate_of_penetration_mod(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33)
                 depth += rop*delta_t
                 t += delta_t
                 depth_dict.append(depth)
                 rop_dict.append(rop)
+                rpm_dict.append(rpm)
                 time_dict.append(t)
         else:
             for i in range(0,len(formation_change[0])):
@@ -141,7 +152,6 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                 t += delta_t
                 time_dict.append(t)
                 rop_dict.append(rop)
-            
-
+    
     return time_dict, depth_dict, rop_dict, model_parameters
     

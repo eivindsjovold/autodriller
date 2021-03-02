@@ -7,6 +7,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 
 env = gym.make('eckel-disc-v0')
 model = DQN.load('trained_agents\\dqn_eckel_mono_116.52')
+model = DQN.load('dqn_eckel_mono')
 obs = env.reset()
 
 for i in range(0,1000):

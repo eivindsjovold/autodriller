@@ -2,19 +2,19 @@ import matplotlib.pyplot as plt
 from models.simulation import simulation
 from models.bourgouyne_young_1974.read_from_case import read_from_case
 
-case = 'RPM'
-model = 'eckel'
+case = 'uniform'
+model = 'BY'
 
 
 ## Drilling parameters
 #BY
 depth = 0.0 #feet
-depth_final = 500.0 #feet
+depth_final = 1000.0 #feet
 rho = 22 
-rpm = 37.5
+rpm = 100
 q = 334     #gal/min
 wob_init = 0.1 #10^3 lbf/in
-wob = 35      #10^3 lbf/in 
+wob = 50      #10^3 lbf/in 
 gp = 1.0        #lbm/gal
 db = 1.0
 db_init = db    #bit outer diameter in inches
@@ -29,8 +29,8 @@ K = 1
 k = 1
 my = 0.4
 a11 = 0.005
-a22 = 0.005
-a33 = 0.000001
+a22 = 0.5
+a33 = 0.000005
 
 
 

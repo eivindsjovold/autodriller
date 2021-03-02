@@ -9,9 +9,9 @@ class ByModEnv(gym.Env):
     metadata = {'render.modes': ['human', 'ansi']}
     mode = 'human'    
 
-    MAX_WOB = 20
-    MAX_RPM = 650
-    MAX_Q = 400
+    MAX_WOB = 2500
+    MAX_RPM = 2500
+    MAX_Q = 2500
 
     MIN_WOB = 5
     MIN_RPM = 150
@@ -25,7 +25,8 @@ class ByModEnv(gym.Env):
         high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q], dtype=np.float32)
         low = np.array([self.MIN_WOB, self.MIN_RPM, self.MIN_Q], dtype=np.float32)
         self.observation_space = spaces.Box(low = 0, high = np.inf, shape = (2,), dtype=np.float32)
-        self.action_space = spaces.Box(low = low, high = high, dtype = np.float32)        
+        #self.action_space = spaces.Box(low = low, high = high, dtype = np.float32)
+        self.action_space = spaces.MultiDiscrete([self.MAX_WOB, self.MAX_RPM, self.MAX_Q])        
 
 
         ## Drilling parameters
@@ -56,15 +57,14 @@ class ByModEnv(gym.Env):
 
     def step(self, action):
         depth = self.state[0]
-        print(type(depth))
-        rpm = action[1]
-        wob = action[0]
-        q = action[2]
+        rpm = action[1] + 100
+        wob = action[0] + 5
+        q = action[2] + 100
         rop = rate_of_penetration_mod(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,depth,self.gp,self.rho,wob,self.wob_init,self.db,self.db_init,rpm,self.h,q,self.velocity_noz, self.a11, self.a22, self.a33)
         depth += rop*self.delta_t
         self.state = np.array([depth, rop])
         done = self.isDone()
-        reward = rop/1000
+        reward = rop
 
         return self.state, reward, done, {}
     
@@ -78,7 +78,9 @@ class ByModEnv(gym.Env):
         return self.state
 
     def isDone(self):
-        if self.depth_final >= self.state[0]:
+        if self.depth_final <= self.state[0]:
             return False
+        elif self.state[1] < 5:
+            return True
         else:
             return True
