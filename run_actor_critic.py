@@ -19,3 +19,4 @@ for i in range(0,50):
     action, _states = model.predict(obs)
     obs, rewards, dones, info = env.step(action)
     env.render()
+    
