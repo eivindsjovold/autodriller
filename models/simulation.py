@@ -3,6 +3,10 @@ from models.bourgouyne_young_1974.rate_of_penetration_modified import rate_of_pe
 from models.bourgouyne_young_1974.generate_parameter import generate_range
 from models.eckels.eckel import rate_of_penetration_eckel
 import numpy as np
+import gym
+import rop_envs
+
+from stable_baselines3 import DQN
 
 
 def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delta_t, case, formation_change,a,b,c,k,K,my,model,a11,a22,a33):
@@ -145,6 +149,24 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                 t += delta_t
                 time_dict.append(t)
                 rop_dict.append(rop)
+
+    elif model =='agent':
+        if case =='dqn':
+            env = gym.make('eckel-disc-v0')
+            dqnModel = DQN.load('trained_agents\\dqn_eckel_mono_116.52')
+            obs = env.reset()
+            action_log = []
+            while obs[0] < depth_final:
+                action, _states = dqnModel.predict(obs, deterministic=True)
+                action_log.append(action)
+                obs, reward, done, info = env.step(action)
+                depth += obs[0]*delta_t
+                obs[0] = depth
+                t += delta_t
+                time_dict.append(t)
+                rop_dict.append(obs[1])
+            print(action_log)                  
+
     
     return time_dict, depth_dict, rop_dict, model_parameters
     
