@@ -10,3 +10,5 @@ register(id = 'eckel-mdisc-v0',
         entry_point = 'rop_envs.envs:EckelEnvMDisc')
 register(id = 'rop-v0',
         entry_point = 'rop_envs.envs:EckelRate')
+register(id = 'rop-v1',
+        entry_point = 'rop_envs.envs:BYRate')

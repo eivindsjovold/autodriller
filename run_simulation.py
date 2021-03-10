@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 from models.simulation import simulation
 from models.bourgouyne_young_1974.read_from_case import read_from_case
 
-case = 'dqn'
-model = 'agent'
+case = 'hardness'
+model = 'eckel'
 
 ## Drilling parameters
 #BY
@@ -11,7 +11,7 @@ depth = 0.0 #feet
 depth_final = 1000.0 #feet
 rho = 22 
 rpm = 100
-q = 334     #gal/min
+q = 0     #gal/min
 wob_init = 0.1 #10^3 lbf/in
 wob = 50      #10^3 lbf/in 
 gp = 1.0        #lbm/gal
@@ -29,7 +29,7 @@ k = 1
 my = 0.4
 a11 = 0.005
 a22 = 0.005
-a33 = 0.005
+a33 = 0.00005
 
 
 

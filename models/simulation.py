@@ -5,6 +5,7 @@ from models.eckels.eckel import rate_of_penetration_eckel
 import numpy as np
 import gym
 import rop_envs
+import matplotlib.pyplot as plt
 
 from stable_baselines3 import DQN
 
@@ -101,6 +102,29 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                 rop_dict.append(rop)
                 time_dict.append(t)
                 print('q: ', q, 'rop: ', rop)
+        else:
+            print(case)
+            rop_ls = []
+            q = 150
+            wob = 35
+            rpm = 35
+            depth = 0
+            depth_final = 100
+            model_parameters = [a,b,c,k,K]
+            for i in range(0,500):#while depth < depth_final:
+                a = i/100
+                rop = rate_of_penetration_eckel(a,b,c,K, k, 30, 35, q, rho, db, my, a11, a22, a33)
+                depth += rop*delta_t
+                t += delta_t
+                rop_ls.append(rop)
+                depth_dict.append(depth)
+                rop_dict.append(rop)
+                time_dict.append(t)
+                print('a: ', a, 'rop: ', rop)
+            plt.figure()
+            plt.plot(rop_dict)
+            plt.show()
+
     elif model == 'test':
         if case == 'RPM':
             a1 = formation_change[1][1]
@@ -143,9 +167,8 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             a6 = formation_change[6][1]
             a7 = 0#formation_change[7][1]
             a8 = formation_change[8][1]
-            for i in range(0,1000):
+            for q in range(0,1000):
                 rop = rate_of_penetration_mod(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33)
-                q += 10
                 t += delta_t
                 time_dict.append(t)
                 rop_dict.append(rop)
