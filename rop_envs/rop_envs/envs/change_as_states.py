@@ -1,10 +1,12 @@
 import numpy as np
 import gym
+import random
 from gym import spaces
 
 from models.bourgouyne_young_1974.rate_of_penetration_modified import rate_of_penetration_mod
 from models.bourgouyne_young_1974.read_from_case import read_from_case
 from models.eckels.eckel import rate_of_penetration_eckel
+
 
 class EckelRate(gym.Env):
     plots = []
@@ -13,26 +15,30 @@ class EckelRate(gym.Env):
     MAX_WOB = 300
     MAX_RPM = 300
     MAX_Q = 400
-    depth_final = 10
+    depth_final = random.uniform(10, 250)
     delta_t = 1 /3600
     v = 0.1  #feet/s
-    a = 1
-    b = 1
-    c = 1
-    K = 1
-    k = 1
-    my = 0.4
-    d_n = 1.0
-    rho = 22
     a11 = 0.005
     a22 = 0.005
     a33 = 0.00005
+    a = 0.1
+    b = 0.11
+    c = 0.5
+    k = 0.1
+    rho = 1000
+    d_n = 0.25
+    my = 0.4
+    ub_k = 0.3
+    lb_k = 0.1
 
 
 
 
     def __init__(self):
         self.viewer = True
+        #self.disturb = 10
+        #self.formation_depth = 0
+        self.K = random.uniform(self.lb_k, self.ub_k)
         self.state = np.array([15,15,100,0], dtype = np.float32)
         self.reward = 0
         self.last_rop = 0
@@ -71,8 +77,13 @@ class EckelRate(gym.Env):
         self.state[3] = depth
         done = self.isDone()
         self.reward = reward
-        return self.state, reward, done, {}
-
+        #if self.formation_depth > self.disturb:
+        #    self.change_formation()
+        return self.state, reward, done, self.last_rop
+    #def change_formation(self):
+    #    self.K = random.uniform(self.lb_k, self.ub_k)
+    #    self.formation_depth = 0
+    #    self.disturb = random.uniform(self.state[3] + 5, self.state[3] + 100 )
 
 
     def calculateReward(self, rates):
@@ -92,6 +103,7 @@ class EckelRate(gym.Env):
         else:    
             rop = rate_of_penetration_eckel(self.a, self.b, self.c, self.K, self.k, wob, rpm, q, self.rho, self.d_n, self.my, self.a11, self.a22, self.a33)
             depth = self.state[3] + rop*self.delta_t
+            self.formation_depth += rop*self.delta_t
             reward = rop
         return reward, depth
 
@@ -102,16 +114,24 @@ class EckelRate(gym.Env):
         depth = self.state[3]
         rop = rate_of_penetration_eckel(self.a, self.b, self.c, self.K, self.k, wob, rpm, q, self.rho, self.d_n, self.my, self.a11, self.a22, self.a33)
         if rop < self.last_rop:
-            reward = -1
+            reward_1 = -1
         elif rop == self.last_rop:
-            reward = 0
+            reward_1 = 0
         elif rop > self.last_rop: 
-            reward = 1
+            reward_1 = 1
         else:
             print('entered an unexpected state of reward, reward set to zero')
-            reward = 0
+            print(rop)
+            print(depth)
+            reward_1 = 0
+        #if rop < 0:
+        #    reward_2 = -100
+        #else:
+        #    reward_2 = 0    
+
         self.last_rop = rop
         depth += rop*self.delta_t
+        reward = reward_1# + reward_2
         return reward, depth
 
 
@@ -123,6 +143,9 @@ class EckelRate(gym.Env):
 
     def reset(self):
         print('Resetting: ')
+        self.K = random.uniform(self.lb_k, self.ub_k)
+        #self.disturb = 10
+        print('Hardness: ', self.K)
         self.state = np.array([15,15,100,0], dtype = np.float32)
         return self.state
 
@@ -151,8 +174,8 @@ class BYRate(gym.Env):
     a7 = 0.305
     a8 = 0.5
     v = 0.1  #feet/s
-    a11 = 0.005
-    a22 = 0.005
+    a11 = 0.05
+    a22 = 0.05
     a33 = 0.00005
 
     def __init__(self):
@@ -160,6 +183,7 @@ class BYRate(gym.Env):
         self.state = np.array([15,15,100,0], dtype = np.float32)
         self.reward = 0
         self.last_rop = 0
+        self.plots = []
         high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q, 100000], dtype = np.float32)
         low = np.array([0,0,0,0], dtype = np.float32)
         self.observation_space = spaces.Box(low = low, high = high, dtype = np.float32)

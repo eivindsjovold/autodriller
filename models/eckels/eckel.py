@@ -7,7 +7,6 @@ def rate_of_penetration_eckel(a,b,c,K, k, wob, rpm, q, rho, d_n, my, a11, a22, a
     a = 0.1
     b = 0.11
     c = 0.5
-    K = 0.1
     k = 0.1
     rho = 1000
     d_n = 0.25

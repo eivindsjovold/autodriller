@@ -7,13 +7,13 @@ model = 'eckel'
 
 ## Drilling parameters
 #BY
-depth = 0.0 #feet
+depth = 1000.0 #feet
 depth_final = 1000.0 #feet
 rho = 22 
 rpm = 100
-q = 0     #gal/min
+q = 300     #gal/min
 wob_init = 0.1 #10^3 lbf/in
-wob = 50      #10^3 lbf/in 
+wob = 10      #10^3 lbf/in 
 gp = 1.0        #lbm/gal
 db = 1.0
 db_init = db    #bit outer diameter in inches

@@ -12,7 +12,7 @@ def f2(depth,a2):
     return np.exp(2.303*a2*(10000-depth))
 
 def f3(pore_pressure_gradient, a3, depth):
-    return np.exp(2.303*a3*(depth**0.69)*(pore_pressure_gradient-(9))) #*(0.45359/0.003785))))
+    return np.exp(2.303*a3*np.power(depth,0.69)*(pore_pressure_gradient-(9))) #*(0.45359/0.003785))))
 
 def f4(a4,depth,pore_pressure_gradient,rho):
     return np.exp(2.303*a4*depth*(pore_pressure_gradient-rho))
