@@ -12,3 +12,5 @@ register(id = 'rop-v0',
         entry_point = 'rop_envs.envs:EckelRate')
 register(id = 'rop-v1',
         entry_point = 'rop_envs.envs:BYRate')
+register(id = 'bm-v0',
+        entry_point = 'rop_envs.envs:BenchmarkEckel')

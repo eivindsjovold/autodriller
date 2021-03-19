@@ -63,8 +63,8 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             depth_final = 100
             model_parameters = [a,b,c,k,K]
             for wob in range(0,500):#while depth < depth_final:
-                rop = rate_of_penetration_eckel(a,b,c,K, k, wob, 10, 300, rho, db, my, a11, a22, a33)
-                print(' rop: ', rop)
+                rop = rate_of_penetration_eckel(a,b,c,0.234, k, wob, 10, 300, rho, db, my, a11, a22, a33)
+                print(' rop: ', rop, wob, 'wob')
                 depth += rop*delta_t
                 t += delta_t
                 rop_ls.append(rop)
@@ -83,7 +83,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             depth_final = 100
             model_parameters = [a,b,c,k,K]
             for rpm in range(0,500):#while depth < depth_final:
-                rop = rate_of_penetration_eckel(a,b,c,K, k, 30, rpm, 300, rho, db, my, a11, a22, a33)
+                rop = rate_of_penetration_eckel(a,b,c,0.234, k, 30, rpm, 300, rho, db, my, a11, a22, a33)
                 depth += rop*delta_t
                 t += delta_t
                 rop_ls.append(rop)
@@ -98,7 +98,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             depth_final = 100
             model_parameters = [a,b,c,k,K]
             for q in range(0,500):#while depth < depth_final:
-                rop = rate_of_penetration_eckel(a,b,c,K, k, 30, 35, q, rho, db, my, a11, a22, a33)
+                rop = rate_of_penetration_eckel(a,b,c,0.234, k, 30, 35, q, rho, db, my, a11, a22, a33)
                 depth += rop*delta_t
                 t += delta_t
                 rop_ls.append(rop)
@@ -106,6 +106,38 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                 rop_dict.append(rop)
                 time_dict.append(t)
                 print('q: ', q, 'rop: ', rop)
+        elif case == 'max':
+            a11 = 0.005
+            a22 = 0.005
+            a33 = 0.00005
+            a = 0.1
+            b = 0.11
+            c = 0.5
+            k = 0.1
+            rho = 1000
+            d_n = 0.25
+            my = 0.4
+            ub_k = 0.3
+            lb_k = 0.1
+            K = 0.3
+            print(case)
+            rop_ls = []
+            rop_opt = 0
+            counter = 0
+            for wob in range(1,100):
+                for rpm in range(1,100):
+                    for q in range(1,300):
+                        rop = rate_of_penetration_eckel(a,b,c,K, k, rpm, wob, q, rho, db, my, a11, a22, a33)
+                        counter += 1
+                        if rop > rop_opt:
+                            wob_opt = wob
+                            rpm_opt = rpm
+                            q_opt = q
+                            rop_opt = rop
+                        if counter % 1000000 == 0:
+                            print('iterations:', counter, '/125 000 000')
+            print('wob:',wob_opt,'rpm:',rpm_opt,'q:',q_opt,'rop:',rop_opt)
+
         else:
             print(case)
             rop_ls = []

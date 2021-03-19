@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import timeit
 
 ###########
-case = 'load'
+case = 'train_more'
 model_name = 'trained_agents\\test_rates_ppo'
 env = gym.make('rop-v0')
 
@@ -43,7 +43,7 @@ elif case == 'train_more':
     model = PPO.load(model_name)
     model.set_env(env)
     start = timeit.timeit()
-    model.learn(total_timesteps=50000)
+    model.learn(total_timesteps=15000000)
     end = timeit.timeit()
     print('elapsed time:', end -start) 
 else: 
