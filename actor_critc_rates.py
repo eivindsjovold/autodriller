@@ -9,47 +9,61 @@ import matplotlib.pyplot as plt
 env = gym.make('rop-v0')
 by_env = gym.make('rop-v1')
 vec_env = make_vec_env('rop-v0', n_envs=10)
-by_vec_env = make_vec_env('rop-v1', n_envs = 10)
+by_vec_env = make_vec_env('rop-v1', n_envs = 30)
 markenv = gym.make('bm-v0')
-case = 'load'
-savestring = 'trained_agents\\vary_hardness_a2c_eckel_mod_reward'
-loadstring = 'trained_agents\\vary_hardness_a2c_eckel_mod_reward'
-states = []
+case = 'train_more'
+savestring = 'trained_agents\\by_a2c_rates'
+loadstring = 'trained_agents\\by_a2c_rates'
+wob = []
+rpm = []
+q = []
 depth = []
 rop = []
+iteration = []
+reward = []
 
 if case == 'train':
-    model = A2C(MlpPolicy, vec_env, verbose = 1)
-    model.learn(total_timesteps = 5000000)
+    model = A2C(MlpPolicy, by_vec_env, verbose = 1)
+    model.learn(total_timesteps = 1000000)
     model.save(savestring)
 
 elif case == 'train_more':
-    model = A2C.load(loadstring)
-    model.set_env(vec_env)
-    model.learn(total_timesteps=10000000)
-    model.save(savestring)
+    for i in range(10):    
+        model = A2C.load(loadstring)
+        model.set_env(by_vec_env)
+        model.learn(total_timesteps=10000000)
+        model.save(savestring)
 
 elif case =='load':
     model = A2C.load(loadstring)
-    obs = env.reset()
-    for i in range(10):
+    obs = by_env.reset()
+    counter = 0
+    for i in range(2):
         done = False
-        obs = env.reset()
+        obs = by_env.reset()
         print('iteration',i)
         while not done:
             action, _states = model.predict(obs)
-            obs, rewards, done, info = env.step(action)
-            env.render()
-            states.append(obs)
+            obs, rewards, done, info = by_env.step(action)
+            #by_env.render()
+            wob.append(obs[0])
+            rpm.append(obs[1])
+            depth.append(obs[2])
+            reward.append(rewards)
+            iteration.append(counter)
             rop.append(info)
-            depth.append(obs[3])
-    plt.figure()
-    plt.plot(rop, label = 'ROP')
-    plt.xlabel('Time[s]')
-    plt.ylabel('ROP[ft/hr]')
-    plt.title('RL agent inspired by Extremum Seeking Policy')
-    plt.savefig('vary_hardness_eckel')
+    fig, ax = plt.subplots(5)
+    fig.suptitle('RL agent inspired by extremum seeking')
+    ax[0].plot(rop, label = 'ROP')
+    ax[0].set_title('ROP[ft/hr]')
+    ax[1].plot(wob, label = 'WOB')
+    ax[1].set_title('WOB[klbf]')
+    ax[2].plot(rpm)
+    ax[3].plot(depth)
+    ax[4].plot(reward)
+    plt.savefig('BY_load_agent')
     plt.show()
+
 
 elif case == 'benchmark':
     K = 0
@@ -66,7 +80,7 @@ elif case == 'benchmark':
         while not done:
             action, _states = model.predict(obs)
             obs, rewards, done, info = markenv.step(action)
-            #markenv.render()
+            markenv.render()
             states.append(obs)
             rop.append(info[0])
             depth.append(obs[3])

@@ -6,6 +6,7 @@ import numpy as np
 import gym
 import rop_envs
 import matplotlib.pyplot as plt
+import random
 
 from stable_baselines3 import DQN
 
@@ -24,27 +25,51 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
         if case == 'uniform':
             print(case)
             ##initialize parameters
-            #a1,a2,a3,a4,a5,a6,a7,a8 = generate_range()
-            a1 = formation_change[1][1]
-            a2 = formation_change[2][1]
-            a3 = formation_change[3][1]
-            a4 = formation_change[4][1]
-            a5 = formation_change[5][1]
-            a6 = formation_change[6][1]
-            a7 = formation_change[7][1]
-            a8 = formation_change[8][1]
-            model_parameters = np.array([a1,a2,a3,a4,a5,a6,a7,a8])
+            a1,a2,a3,a4,a5,a6,a7,a8 = generate_range()
+            a2 = 0
+            a3 = 0
+            a4 = 0
+            a1 = 1.5
+            a5 = 1
+            a6 = 0.6
+            a7 = 0
+            a8 = 0.3
+            #a1 = 1.9
+            #a5 = 2
+            #a6 = 1
+            #a8 = 0.6
+            a1 = random.uniform(1.5,1.9)
+            a5 = random.uniform(1.5,2)
+            a6 = 1
+            a8 = 0.3
+            a1 = 0.7
+            #a1 = formation_change[1][1]
+            #a3 = formation_change[3][1]
+            #a4 = formation_change[4][1]
+            #a5 = formation_change[5][1]
+            #a6 = formation_change[6][1]
+            #a7 = formation_change[7][1]
+            #a8 = formation_change[8][1]
+            #model_parameters = np.array([a1,a2,a3,a4,a5,a6,a7,a8])
             #while depth < depth_final:
-            for rpm in range(0,5000):
-                wob =  1515 
-                rop = rate_of_penetration_mod(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33)
-                depth += rop*delta_t
-                t += delta_t
-                depth_dict.append(depth)
-                rop_dict.append(rop)
-                rpm_dict.append(rpm)
-                time_dict.append(t)
-                print(depth, rop, wob)
+            wob_m = 0
+            rpm_m = 0
+            rop_m = -999999
+            for rpm in range(1,300):
+                for wob in range(1,100):
+                    q = 400
+                    rop = rate_of_penetration_mod(a1,a2,a3,a4,a5,a6,a7,a8,0,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11,a22,a33)
+                    if rop > rop_m:
+                        rop_m = rop
+                        wob_m = wob
+                        rpm_m = rpm
+                    depth += rop*delta_t
+                    t += delta_t
+                    depth_dict.append(depth)
+                    rop_dict.append(rop)
+                    rpm_dict.append(rpm)
+                    time_dict.append(t)
+            print(rop_m,wob_m,rpm_m)
         else:
             for i in range(0,len(formation_change[0])):
                 depth_final = formation_change[0][i]

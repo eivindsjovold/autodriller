@@ -33,14 +33,12 @@ class EckelRate(gym.Env):
     lb_k = 0.1
 
 
-
-
     def __init__(self):
         self.viewer = True
         #self.disturb = 10
         #self.formation_depth = 0
         self.K = random.uniform(self.lb_k, self.ub_k)
-        self.state = np.array([15,15,100,0], dtype = np.float32)
+        self.state = np.array([0,0,0,0], dtype = np.float32)
         self.reward = 0
         self.last_rop = 0
         high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q, 100000], dtype = np.float32)
@@ -80,7 +78,7 @@ class EckelRate(gym.Env):
         self.reward = reward
         #if self.formation_depth > self.disturb:
         #    self.change_formation()
-        return self.state, reward, done, self.last_rop
+        return self.state, reward, done, {}
 
     #def change_formation(self):
     #    self.K = random.uniform(self.lb_k, self.ub_k)
@@ -123,6 +121,7 @@ class EckelRate(gym.Env):
             rop = 0
             depth = self.depth_final + 10
         reward_1 = rop - self.last_rop
+        
         #############################
         #if rop < self.last_rop:
         #    reward_1 = -1
@@ -164,14 +163,11 @@ class EckelRate(gym.Env):
 
 class BYRate(gym.Env):
     MAX_WOB = 100
-    MAX_RPM = 100
-    MAX_Q = 334
+    MAX_RPM = 300
+    MAX_Q = 400
     depth = 0.0 #feet
-    depth_final = 1000.0 #feet
     rho = 22 
-    q = 0     #gal/min
-    wob_init = 0.1 #10^3 lbf/in
-    wob = 50      #10^3 lbf/in 
+    wob_init = 0.1 #10^3 lbf/in 
     gp = 1.0        #lbm/gal
     db = 1.0
     db_init = db    #bit outer diameter in inches
@@ -181,31 +177,35 @@ class BYRate(gym.Env):
     a11 = 0.05
     a22 = 0.05
     a33 = 0.00005
+    tolerance = 4
  
 
     def __init__(self):
+        self.depth_final = 5
         self.viewer = True
-        self.state = np.array([0,0,0,0], dtype = np.float32)
+        self.state = np.array([5,5,0], dtype = np.float32)
         self.reward = 0
+        self.rop_max = 0
         self.last_rop = 0
         self.plots = []
-        high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q, 100000], dtype = np.float32)
-        low = np.array([0,0,0,0], dtype = np.float32)
+        self.num_it = 0
+        high = np.array([self.MAX_WOB, self.MAX_RPM, 100000], dtype = np.float32)
+        low = np.array([0,0,0], dtype = np.float32)
         self.observation_space = spaces.Box(low = low, high = high, dtype = np.float32)
         #down, stay, up
-        self.action_space = spaces.MultiDiscrete([3,3,3])
-        self.a1 = random.uniform(0.5,1.9)
-        self.a2 = random.uniform(0.000001,0.0005)
-        self.a3 = random.uniform(0.000001,0.0009)
-        self.a4 = random.uniform(0.000001,0.0001)
-        self.a5 = random.uniform(0.5,2)
-        self.a6 = random.uniform(0.4,1)
-        self.a7 = random.uniform(0.3,1.5)
-        self.a8 = random.uniform(0.3,0.6)
+        self.action_space = spaces.MultiDiscrete([3,3])
+        self.a1 = random.uniform(1.5,1.9)
+        self.a2 = 0
+        self.a3 = 0
+        self.a4 = 0
+        self.a5 = random.uniform(1,2)
+        self.a6 = random.uniform(0.6,1)
+        self.a7 = 0
+        self.a8 = 0.3
 
     
     def actionToValue(self, action):
-        rates = np.zeros(3)
+        rates = np.zeros(len(action))
         for i in range(0, len(action)):
             if action[i] == 0:
                 rates[i] = -1
@@ -214,42 +214,67 @@ class BYRate(gym.Env):
             elif action[i] == 2:
                 rates[i] = 1
         return rates
+    
     def check_for_nan(self,number):
         return number != number
+
+    def check_wob(self, wob):
+        if wob > self.MAX_WOB:
+            return self.MAX_WOB
+        else:
+            return wob
+    def check_rpm(self, rpm):
+        if rpm > self.MAX_RPM:
+            return self.MAX_RPM
+        else:
+            return rpm
+    def check_q(self, q):
+        if q > self.MAX_Q:
+            return self.MAX_Q
+        else:
+            return q
     
-    def calculate_reward(self, rates):
-        wob = self.state[0] + rates[0]
-        rpm = self.state[1] + rates[1]
-        q = self.state[2] + rates[2]
-        depth = self.state[3]
-        rop = rate_of_penetration(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,100,self.gp,self.rho,wob,self.wob_init,self.db,self.db_init,rpm,self.h,q,self.v)#, self.a11, self.a22, self.a33)
-        reward = rop - self.last_rop
-        if self.check_for_nan(rop):
-            reward = -100
-            depth = self.depth_final + 10
-        self.last_rop = rop
-        depth += rop*self.delta_t
-        return reward, depth
-
-
 
     def step(self, action):
-        wob = self.state[0]
-        rpm = self.state[1]
-        q = self.state[2]
-        depth = self.state[3]
+        depth = self.state[2]
         rates = self.actionToValue(action)
-        reward, depth = self.calculate_reward(rates)
-        self.state[0] += rates[0]
-        self.state[1] += rates[1]
-        self.state[2] += rates[2]
-        self.state[3] = depth
-        done = self.isDone()
+        wob = self.state[0] + rates[0]
+        rpm = self.state[1] + rates[1]
+        if wob > self.MAX_WOB:
+            reward = -10
+            wob = self.MAX_WOB
+        if rpm > self.MAX_RPM:
+            reward = -10
+            rpm = self.MAX_RPM
+        if wob <= 0:
+            wob = 0
+            reward = -10
+        if rpm <= 0:
+            rpm = 0
+            reward = -10
+        self.state[0] = wob
+        self.state[1] = rpm
+        rop = rate_of_penetration_mod(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,self.depth,self.gp,self.rho,wob,self.wob_init,self.db,self.db_init,rpm,self.h,400,self.v, self.a11, self.a22, self.a33)
+        if self.check_for_nan(rop):
+            rop = 0
+        self.state[2] += rop*self.delta_t            
+        
+        if rop > self.last_rop:
+            reward_1 = 1
+        elif rop == self.last_rop:
+            reward_1 = 0
+        else:
+            reward_1 = -1
+
+        reward = reward_1  
+        self.last_rop = rop
         self.reward = reward
+        self.num_it += 1
+        done = self.isDone()
         return self.state, reward, done, {}
 
     def isDone(self):
-        return not self.state[3] < self.depth_final
+        return not self.state[2] < self.depth_final
 
     def render(self, mode = 'human'):
         self.plots.append(self.state)
@@ -259,15 +284,19 @@ class BYRate(gym.Env):
 
     def reset(self):
         print('Resetting: ')
-        self.state = np.array([0,0,0,0], dtype = np.float32)
-        self.a1 = random.uniform(0.5,1.9)
-        self.a2 = random.uniform(0.000001,0.0005)
-        self.a3 = random.uniform(0.000001,0.0009)
-        self.a4 = random.uniform(0.000001,0.0001)
-        self.a5 = random.uniform(0.5,2)
-        self.a6 = random.uniform(0.4,1)
-        self.a7 = random.uniform(0.3,1.5)
-        self.a8 = random.uniform(0.3,0.6)
+        self.state = np.array([5,5,0], dtype = np.float32)
+        self.rop_max = 0
+        self.reward = 0
+        self.a1 = random.uniform(1.5,1.9)
+        self.a5 = 2
+        self.a2 = 0
+        self.a3 = 0
+        self.a4 = 0
+        self.a6 = 1
+        self.a8 = 0.3
+        self.num_it = 0
+        print(self.a1)
+        self.depth_final = random.randint(10,20)
         return self.state
 
 

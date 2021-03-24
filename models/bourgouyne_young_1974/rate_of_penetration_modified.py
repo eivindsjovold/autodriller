@@ -26,7 +26,7 @@ def f5(a5, wob, wob_init, db, db_init):
     return np.power(temp , a5) # lbf/in *(4.44822/(0.0254*1000))  
 
 def f6(a6, rpm):
-    return np.power(rpm/60, a6)
+    return np.power(rpm/150, a6)
 
 def f7(a7, h):
     return np.exp(-a7*h)
@@ -37,4 +37,11 @@ def f8(a8, rho, q, v):
 
 
 def rate_of_penetration_mod(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33):
-    return f1(a1)*f2(depth,a2)*f3(gp, a3, depth)*f4(a4,depth,gp,rho)*f5(a5, wob, wob_init, db, db_init)*f6(a6, rpm)*f7(a7, h)*f8(a8, rho,q,v) - a11 * np.power(f5(a5, wob, wob_init, db, db_init),2) - a22*np.power(f6(a6, rpm),2) - a33*np.power(f8(a8, rho,q,v),2)
+    wob_diameter = wob/db
+    wob_threshold = wob_init/db_init
+    temp = ((wob_diameter - wob_threshold)/( 4.0 - wob_threshold))
+    temp2 = f1(a1)*f2(depth,a2)*f3(gp, a3, depth)*f4(a4,depth,gp,rho)*f5(a5, wob, wob_init, db, db_init)*f6(a6, rpm)*f7(a7, h)*f8(a8, rho,q,v) - (1/(1000*a1*a5*a6))*np.power(f1(a1)*f2(depth,a2)*f3(gp, a3, depth)*f4(a4,depth,gp,rho)*f5(a5, wob, wob_init, db, db_init)*f6(a6, rpm)*f7(a7, h)*f8(a8, rho,q,v),2.5)
+    if temp2 < 0:
+        return abs(2 - abs(temp2/100000))
+    else:
+        return temp2 
