@@ -42,6 +42,6 @@ def rate_of_penetration_mod(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db
     temp = ((wob_diameter - wob_threshold)/( 4.0 - wob_threshold))
     temp2 = f1(a1)*f2(depth,a2)*f3(gp, a3, depth)*f4(a4,depth,gp,rho)*f5(a5, wob, wob_init, db, db_init)*f6(a6, rpm)*f7(a7, h)*f8(a8, rho,q,v) - (1/(1000*a1*a5*a6))*np.power(f1(a1)*f2(depth,a2)*f3(gp, a3, depth)*f4(a4,depth,gp,rho)*f5(a5, wob, wob_init, db, db_init)*f6(a6, rpm)*f7(a7, h)*f8(a8, rho,q,v),2.5)
     if temp2 < 0:
-        return abs(2 - abs(temp2/100000))
+        return abs(2 - abs(temp2/1000000))
     else:
         return temp2 

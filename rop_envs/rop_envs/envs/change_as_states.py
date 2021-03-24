@@ -254,7 +254,7 @@ class BYRate(gym.Env):
             reward = -10
         self.state[0] = wob
         self.state[1] = rpm
-        rop = rate_of_penetration_mod(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,self.depth,self.gp,self.rho,wob,self.wob_init,self.db,self.db_init,rpm,self.h,400,self.v, self.a11, self.a22, self.a33)
+        rop = rate_of_penetration_mod(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,depth,self.gp,self.rho,wob,self.wob_init,self.db,self.db_init,rpm,self.h,400,self.v, self.a11, self.a22, self.a33)
         if self.check_for_nan(rop):
             rop = 0
         self.state[2] += rop*self.delta_t            
@@ -266,12 +266,16 @@ class BYRate(gym.Env):
         else:
             reward_1 = -1
 
-        reward = reward_1  
         self.last_rop = rop
-        self.reward = reward
         self.num_it += 1
         done = self.isDone()
-        return self.state, reward, done, {}
+        if done:
+            reward_2 = 10000 - self.num_it
+        else:
+            reward_2 = 0
+        reward = reward_1 + reward_2 
+        self.reward = reward
+        return self.state, reward, done, self.last_rop
 
     def isDone(self):
         return not self.state[2] < self.depth_final
@@ -282,21 +286,21 @@ class BYRate(gym.Env):
         print(self.last_rop)
         return self.plots
 
-    def reset(self):
-        print('Resetting: ')
+    def reset(self,a1,a5):
         self.state = np.array([5,5,0], dtype = np.float32)
         self.rop_max = 0
         self.reward = 0
         self.a1 = random.uniform(1.5,1.9)
-        self.a5 = 2
+        self.a1 = a1
+        self.a5 = random.uniform(1.5,2)
+        self.a5 = a5
         self.a2 = 0
         self.a3 = 0
         self.a4 = 0
         self.a6 = 1
         self.a8 = 0.3
         self.num_it = 0
-        print(self.a1)
-        self.depth_final = random.randint(10,20)
+        self.depth_final = random.randint(10,50)
         return self.state
 
 

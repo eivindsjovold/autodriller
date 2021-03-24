@@ -39,10 +39,10 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             #a6 = 1
             #a8 = 0.6
             a1 = random.uniform(1.5,1.9)
-            a5 = random.uniform(1.5,2)
+            a5 = 2
             a6 = 1
             a8 = 0.3
-            a1 = 0.7
+            a1 = 1.6
             #a1 = formation_change[1][1]
             #a3 = formation_change[3][1]
             #a4 = formation_change[4][1]
@@ -69,7 +69,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                     rop_dict.append(rop)
                     rpm_dict.append(rpm)
                     time_dict.append(t)
-            print(rop_m,wob_m,rpm_m)
+            print(rop_m,'wob:',wob_m,'rpm:',rpm_m)
         else:
             for i in range(0,len(formation_change[0])):
                 depth_final = formation_change[0][i]

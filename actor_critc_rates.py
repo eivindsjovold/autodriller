@@ -11,7 +11,7 @@ by_env = gym.make('rop-v1')
 vec_env = make_vec_env('rop-v0', n_envs=10)
 by_vec_env = make_vec_env('rop-v1', n_envs = 30)
 markenv = gym.make('bm-v0')
-case = 'train_more'
+case = 'load'
 savestring = 'trained_agents\\by_a2c_rates'
 loadstring = 'trained_agents\\by_a2c_rates'
 wob = []
@@ -21,6 +21,7 @@ depth = []
 rop = []
 iteration = []
 reward = []
+split = []
 
 if case == 'train':
     model = A2C(MlpPolicy, by_vec_env, verbose = 1)
@@ -28,39 +29,54 @@ if case == 'train':
     model.save(savestring)
 
 elif case == 'train_more':
-    for i in range(10):    
-        model = A2C.load(loadstring)
+    for i in range(10):
+        print('training session:',i)    
+        model = A2C.load(loadstring, verbose = 0)
         model.set_env(by_vec_env)
         model.learn(total_timesteps=10000000)
         model.save(savestring)
 
 elif case =='load':
     model = A2C.load(loadstring)
-    obs = by_env.reset()
+    obs = by_env.reset(0,0)
     counter = 0
-    for i in range(2):
+    a_x = [1.6, 1.7]
+    a5 = 2
+    for i in range(len(a_x)):
         done = False
-        obs = by_env.reset()
+        obs = by_env.reset(a_x[i], a5)
         print('iteration',i)
+        split.append(counter)
         while not done:
+            counter += 1
             action, _states = model.predict(obs)
             obs, rewards, done, info = by_env.step(action)
-            #by_env.render()
+            by_env.render()
             wob.append(obs[0])
             rpm.append(obs[1])
             depth.append(obs[2])
             reward.append(rewards)
             iteration.append(counter)
             rop.append(info)
+    print(split)
     fig, ax = plt.subplots(5)
     fig.suptitle('RL agent inspired by extremum seeking')
-    ax[0].plot(rop, label = 'ROP')
+    ax[0].plot(rop)
+    ax[0].plot([split[0],split[1]], [70.73340440582922,70.73340440582922] , 'r--')
+    ax[0].plot([split[1],iteration[-1]], [73.65075174106254,73.65075174106254], 'r--')
     ax[0].set_title('ROP[ft/hr]')
     ax[1].plot(wob, label = 'WOB')
+    ax[1].plot([split[0],split[1]],[16,16], 'r--')
+    ax[1].plot([split[1],iteration[-1]], [56,56] , 'r--')
     ax[1].set_title('WOB[klbf]')
     ax[2].plot(rpm)
+    ax[2].plot([split[0],split[1]],[269,269], 'r--')
+    ax[2].plot([split[1],iteration[-1]],[18,18], 'r--')
+    ax[2].set_title('RPM[rev/min]')
     ax[3].plot(depth)
+    ax[3].set_title('Depth[ft]')
     ax[4].plot(reward)
+    ax[4].set_title('Reward[numerical signal]')
     plt.savefig('BY_load_agent')
     plt.show()
 
