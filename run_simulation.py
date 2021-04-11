@@ -3,7 +3,7 @@ from models.simulation import simulation
 from models.bourgouyne_young_1974.read_from_case import read_from_case
 
 case = 'uniform'
-model = 'BY'
+model = 'hareland'
 
 ## Drilling parameters
 #BY

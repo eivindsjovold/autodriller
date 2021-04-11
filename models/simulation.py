@@ -2,11 +2,13 @@ from models.bourgouyne_young_1974.rate_of_penetration import rate_of_penetration
 from models.bourgouyne_young_1974.rate_of_penetration_modified import rate_of_penetration_mod
 from models.bourgouyne_young_1974.generate_parameter import generate_range
 from models.eckels.eckel import rate_of_penetration_eckel
+from models.hareland.hareland_model import rop_hareland, area
 import numpy as np
 import gym
 import rop_envs
 import matplotlib.pyplot as plt
 import random
+import math
 
 from stable_baselines3 import DQN
 
@@ -251,6 +253,26 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                 rop_dict.append(obs[1])
             print(action_log)                  
 
-    
+    elif model == 'hareland':
+        a = 1
+        b = 0.6
+        c = 0.6
+        rpm = 90
+        sigma = 100000 #40 MPa
+        db = 20
+        dc = 15
+        num_cutters = 10
+        alpha = 0
+        tht = math.pi/2
+        time_dict = []
+        depth_dict  = []
+        rop_dict  = []
+        model_parameters  = []
+        for wob in range(1,10):
+            rop = rop_hareland(a,b,c,rpm,wob,num_cutters,db,alpha,tht,dc,sigma)
+            rop_dict.append(rop)
+        plt.figure()
+        plt.plot(rop_dict)
+        plt.show()
     return time_dict, depth_dict, rop_dict, model_parameters
     
