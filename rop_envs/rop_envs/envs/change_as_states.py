@@ -38,7 +38,7 @@ class EckelRate(gym.Env):
         #self.disturb = 10
         #self.formation_depth = 0
         self.K = random.uniform(self.lb_k, self.ub_k)
-        self.state = np.array([0,0,0,0], dtype = np.float32)
+        self.state = np.array([15,15,15,1], dtype = np.float32)
         self.reward = 0
         self.last_rop = 0
         high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q, 100000], dtype = np.float32)
@@ -76,6 +76,8 @@ class EckelRate(gym.Env):
         self.state[3] = depth
         done = self.isDone()
         self.reward = reward
+        if done:
+            self.reward += 10000
         #if self.formation_depth > self.disturb:
         #    self.change_formation()
         return self.state, reward, done, {}
@@ -121,7 +123,6 @@ class EckelRate(gym.Env):
             rop = 0
             depth = self.depth_final + 10
         reward_1 = rop - self.last_rop
-        
         #############################
         #if rop < self.last_rop:
         #    reward_1 = -1
@@ -275,7 +276,7 @@ class BYRate(gym.Env):
             reward_2 = 0
         reward = reward_1 + reward_2 
         self.reward = reward
-        return self.state, reward, done, self.last_rop
+        return self.state, reward, done, {}
 
     def isDone(self):
         return not self.state[2] < self.depth_final

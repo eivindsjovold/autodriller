@@ -1,6 +1,7 @@
 from models.bourgouyne_young_1974.rate_of_penetration import rate_of_penetration
 from models.bourgouyne_young_1974.rate_of_penetration_modified import rate_of_penetration_mod
 from models.bourgouyne_young_1974.generate_parameter import generate_range
+from models.bourgouyne_young_1974.rate_of_penetration_v3 import rate_of_penetration_modv3, f6, f5
 from models.eckels.eckel import rate_of_penetration_eckel
 from models.hareland.hareland_model import rop_hareland, area
 import numpy as np
@@ -24,7 +25,39 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
     
     if model == 'BY':
         print(model)
-        if case == 'uniform':
+        if case == 'test_model':
+            print(case)
+            a2 = 0
+            a3 = a2
+            a4 = a2
+            a7 = a2
+            a5 = 2
+            a6 = 1
+            a8 = 0.3
+            a1 = 1.6
+            rpm = 60
+            wob_m = 0
+            rpm_m = 0
+            rop_m = -999999
+            q = 400
+            time = 0
+            rop = 0
+            wob_part = rop
+            rpm_part = rop
+            for wob in range(1,100):
+                rop, wob_part, rpm_part = rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,0,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11,a22,a33, wob_part, rpm_part)
+                rop_dict.append(rop)
+                time += delta_t
+                depth += rop*delta_t
+                depth_dict.append(depth)
+                time_dict.append(time)
+                depth_dict.append(depth)         
+        
+        
+        
+        
+        
+        elif case == 'nested_loop':
             print(case)
             ##initialize parameters
             a1,a2,a3,a4,a5,a6,a7,a8 = generate_range()
@@ -60,7 +93,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             for rpm in range(1,300):
                 for wob in range(1,100):
                     q = 400
-                    rop = rate_of_penetration_mod(a1,a2,a3,a4,a5,a6,a7,a8,0,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11,a22,a33)
+                    rop = rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,0,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11,a22,a33)
                     if rop > rop_m:
                         rop_m = rop
                         wob_m = wob
@@ -73,6 +106,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                     time_dict.append(t)
             print(rop_m,'wob:',wob_m,'rpm:',rpm_m)
         else:
+            print('no case')
             for i in range(0,len(formation_change[0])):
                 depth_final = formation_change[0][i]
                 while depth < depth_final:
@@ -83,6 +117,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                     rop_dict.append(rop)
                     time_dict.append(t)
     elif model == 'eckel':
+        print('model')
         if case == 'WOB':
             print(case)
             rop_ls = []
@@ -134,6 +169,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                 time_dict.append(t)
                 print('q: ', q, 'rop: ', rop)
         elif case == 'max':
+            print(case)
             a11 = 0.005
             a22 = 0.005
             a33 = 0.00005
@@ -166,7 +202,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             print('wob:',wob_opt,'rpm:',rpm_opt,'q:',q_opt,'rop:',rop_opt)
 
         else:
-            print(case)
+            print('no case')
             rop_ls = []
             q = 150
             wob = 35
@@ -189,7 +225,9 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             plt.show()
 
     elif model == 'test':
+        print(model)
         if case == 'RPM':
+            print(case)
             a1 = formation_change[1][1]
             a2 = formation_change[2][1]
             a3 = formation_change[3][1]
@@ -206,6 +244,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                 rop_dict.append(rop)
 
         if case == 'WOB':
+            print(case)
             a1 = formation_change[1][1]
             a2 = formation_change[2][1]
             a3 = formation_change[3][1]
@@ -222,6 +261,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                 rop_dict.append(rop)                  
                 print(wob)
         if case == 'Q':
+            print(case)
             a1 = formation_change[1][1]
             a2 = formation_change[2][1]
             a3 = formation_change[3][1]
@@ -237,7 +277,9 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                 rop_dict.append(rop)
 
     elif model =='agent':
+        print(model)
         if case =='dqn':
+            print(case)
             env = gym.make('eckel-disc-v0')
             dqnModel = DQN.load('trained_agents\\dqn_eckel_mono_116.52')
             obs = env.reset()
@@ -254,6 +296,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             print(action_log)                  
 
     elif model == 'hareland':
+        print(model)
         a = 1
         b = 0.6
         c = 0.6

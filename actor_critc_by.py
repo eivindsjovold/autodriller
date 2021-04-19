@@ -11,9 +11,11 @@ by_env = gym.make('rop-v1')
 vec_env = make_vec_env('rop-v0', n_envs=10)
 by_vec_env = make_vec_env('rop-v1', n_envs = 30)
 markenv = gym.make('bm-v0')
-case = 'load'
+case = 'train'
 savestring = 'trained_agents\\by_a2c_rates'
 loadstring = 'trained_agents\\by_a2c_rates'
+
+
 wob = []
 rpm = []
 q = []
@@ -22,9 +24,10 @@ rop = []
 iteration = []
 reward = []
 split = []
+states = []
 
 if case == 'train':
-    model = A2C(MlpPolicy, by_vec_env, verbose = 1)
+    model = A2C(MlpPolicy, vec_env, verbose = 1)
     model.learn(total_timesteps = 1000000)
     model.save(savestring)
 
@@ -32,7 +35,7 @@ elif case == 'train_more':
     for i in range(10):
         print('training session:',i)    
         model = A2C.load(loadstring, verbose = 0)
-        model.set_env(by_vec_env)
+        model.set_env(vec_env)
         model.learn(total_timesteps=10000000)
         model.save(savestring)
 
@@ -77,7 +80,7 @@ elif case =='load':
     ax[3].set_title('Depth[ft]')
     ax[4].plot(reward)
     ax[4].set_title('Reward[numerical signal]')
-    plt.savefig('BY_load_agent')
+    plt.savefig('figures\\BY_load_agent')
     plt.show()
 
 
@@ -115,7 +118,7 @@ elif case == 'benchmark':
     plt.xlabel('Time[s]')
     plt.ylabel('ROP[ft/hr]')
     plt.title('RL agent inspired by Extremum Seeking Policy')
-    plt.savefig('vary_hardness_eckel')
+    plt.savefig('figure\\vary_hardness_eckel')
     plt.show()
         
     

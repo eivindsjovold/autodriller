@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 import timeit
 
 ###########
-case = 'train_more'
-model_name = 'trained_agents\\test_rates_ppo'
+case = 'load'
+model_name = 'trained_agents\\a2c_rates'
 env = gym.make('rop-v0')
 
 
@@ -20,11 +20,11 @@ if case == 'train':
     model.learn(total_timesteps=500000)
     end = timeit.timeit()
     print('elapsed time:', end- start)
-    model.save('trained_agents\\test_rates_ppo')
+    model.save(model_name)
 
 
 elif case == 'load':
-    model = PPO.load('trained_agents\\rates_optimum_ppo')
+    model = PPO.load('trained_agents\\test-DDPG_117_483')
     obs = env.reset()
     states = []
     rop = []
