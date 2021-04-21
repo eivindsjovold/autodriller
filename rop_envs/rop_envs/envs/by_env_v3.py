@@ -6,8 +6,8 @@ from gym import spaces
 from models.bourgouyne_young_1974.rate_of_penetration_v3 import rate_of_penetration_modv3
 
 
-class BYRate(gym.Env):
-    MAX_WOB = 100
+class BYEnv(gym.Env):
+    MAX_WOB = 200
     MAX_RPM = 300
     MAX_Q = 400
     depth = 0.0 #feet
@@ -18,40 +18,40 @@ class BYRate(gym.Env):
     db_init = db    #bit outer diameter in inches
     delta_t = 1/3600 #hrs
     h = 0.0001
-    v = 0.1  #feet/s
-    a11 = 0.05
-    a22 = 0.05
-    a33 = 0.00005
+    v = 10  #feet/s
+    a11 = 0.005
+    a22 = 0.005
+    a33 = 0.005
     tolerance = 4
  
 
     def __init__(self):
-        self.depth_final = 5
+        self.depth_final = 50
+        self.depth = 0
         self.viewer = True
-        self.state = np.array([5,5,0], dtype = np.float32)
+        self.state = np.array([10,10,10,0], dtype = np.float32)
         self.reward = 0
         self.rop_max = 0
         self.last_rop = 0
-        self.plots = []
         self.num_it = 0
-        high = np.array([self.MAX_WOB, self.MAX_RPM, 100000], dtype = np.float32)
-        low = np.array([0,0,0], dtype = np.float32)
+        high = np.array([self.MAX_WOB, self.MAX_RPM, self.MAX_Q, 10000], dtype = np.float32)
+        low = np.array([0,0,0,0], dtype = np.float32)
         self.observation_space = spaces.Box(low = low, high = high, dtype = np.float32)
-        #down, stay, up
-        self.action_space = spaces.MultiDiscrete([3,3])
-        self.a1 = random.uniform(1.5,1.9)
+        self.action_space = spaces.MultiDiscrete([3,3,3])
+        self.a1 = random.uniform(1.0,1.5)
         self.a2 = 0
         self.a3 = 0
         self.a4 = 0
-        self.a5 = random.uniform(1,2)
-        self.a6 = random.uniform(0.6,1)
+        self.a5 = random.uniform(0.5,1)
+        self.a6 = random.uniform(0.4,1)
         self.a7 = 0
-        self.a8 = 0.3
+        self.a8 = random.uniform(0.3,0.6)
+        self.counter = 0
 
     
     def actionToValue(self, action):
         rates = np.zeros(len(action))
-        for i in range(0, len(action)):
+        for i in range(0,len(action)):
             if action[i] == 0:
                 rates[i] = -1
             elif action[i] == 1:
@@ -81,28 +81,20 @@ class BYRate(gym.Env):
     
 
     def step(self, action):
-        depth = self.state[2]
+        depth = self.depth
         rates = self.actionToValue(action)
         wob = self.state[0] + rates[0]
         rpm = self.state[1] + rates[1]
-        if wob > self.MAX_WOB:
-            reward = -10
-            wob = self.MAX_WOB
-        if rpm > self.MAX_RPM:
-            reward = -10
-            rpm = self.MAX_RPM
-        if wob <= 0:
-            wob = 0
-            reward = -10
-        if rpm <= 0:
-            rpm = 0
-            reward = -10
-        self.state[0] = wob
-        self.state[1] = rpm
-        rop = rate_of_penetration_modv3(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,depth,self.gp,self.rho,wob,self.wob_init,self.db,self.db_init,rpm,self.h,400,self.v, self.a11, self.a22, self.a33)
+        q = self.state[2]   + rates[2]
+        rop = rate_of_penetration_modv3(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,depth,self.gp,self.rho,wob,self.wob_init,self.db,self.db_init,rpm,self.h,q,self.v, self.a11, self.a22, self.a33)
         if self.check_for_nan(rop):
             rop = 0
-        self.state[2] += rop*self.delta_t            
+
+        self.depth += rop*self.delta_t            
+        self.state[0] = wob
+        self.state[1] = rpm
+        self.state[2] = q
+        self.state[3] = rop        
         
         if rop > self.last_rop:
             reward_1 = 1
@@ -114,36 +106,49 @@ class BYRate(gym.Env):
         self.last_rop = rop
         self.num_it += 1
         done = self.isDone()
+        
         if done:
-            reward_2 = 10000 - self.num_it
+            reward_2 = 1000
         else:
             reward_2 = 0
-        reward = reward_1 + reward_2 
+        reward = reward_1 + reward_2
+        
+        self.counter = self.useless_counter(rop,self.counter)
+        
+        if self.counter >= 100:
+            reward = -1000
+            done = True
+ 
         self.reward = reward
-        return self.state, reward, done, self.last_rop
+        return self.state, reward, done, {}
 
     def isDone(self):
-        return not self.state[2] < self.depth_final
+        return not self.depth < self.depth_final
 
     def render(self, mode = 'human'):
-        self.plots.append(self.state)
         print(self.state)
-        print(self.last_rop)
-        return self.plots
+    
+    def useless_counter(self, rop, counter):
+        if rop == 0:
+            counter += 1
+        else:
+            counter = 0
+        return counter
 
-    def reset(self,a1,a5):
-        self.state = np.array([5,5,0], dtype = np.float32)
+    def reset(self):
+        self.state = np.array([self.state[0],self.state[1],self.state[2],self.state[3]], dtype = np.float32)
         self.rop_max = 0
         self.reward = 0
-        self.a1 = random.uniform(1.5,1.9)
-        self.a1 = a1
-        self.a5 = random.uniform(1.5,2)
-        self.a5 = a5
+        self.a1 = random.uniform(1,1.5)
+        self.a5 = random.uniform(0.5,1)
         self.a2 = 0
         self.a3 = 0
         self.a4 = 0
         self.a6 = 1
-        self.a8 = 0.3
+        self.a6 = random.uniform(0.4,1)
+        self.a8 = random.uniform(0.3,0.6)
         self.num_it = 0
-        self.depth_final = random.randint(10,50)
+        self.depth = 0
+        self.depth_final = random.randint(50,250)
+        self.counter = 0
         return self.state

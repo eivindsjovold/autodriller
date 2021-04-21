@@ -3,6 +3,7 @@ from models.bourgouyne_young_1974.rate_of_penetration_modified import rate_of_pe
 from models.bourgouyne_young_1974.generate_parameter import generate_range
 from models.bourgouyne_young_1974.rate_of_penetration_v3 import rate_of_penetration_modv3, f6, f5
 from models.eckels.eckel import rate_of_penetration_eckel
+from models.eckels.eckel import rate_of_penetration_eckel_individual_founder, rate_of_penetration_eckel_vary_founder
 from models.hareland.hareland_model import rop_hareland, area
 import numpy as np
 import gym
@@ -31,10 +32,10 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             a3 = a2
             a4 = a2
             a7 = a2
-            a5 = 2
-            a6 = 1
+            a5 = 0.5
+            a6 = 0.4
             a8 = 0.3
-            a1 = 1.6
+            a1 = 1
             rpm = 60
             wob_m = 0
             rpm_m = 0
@@ -44,8 +45,11 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             rop = 0
             wob_part = rop
             rpm_part = rop
-            for wob in range(1,100):
-                rop, wob_part, rpm_part = rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,0,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11,a22,a33, wob_part, rpm_part)
+            wob =150
+            rpm = 200
+            q = 200
+            for wob in range(0,200):
+                rop = rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,0,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11,a22,a33)
                 rop_dict.append(rop)
                 time += delta_t
                 depth += rop*delta_t
@@ -117,27 +121,32 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
                     rop_dict.append(rop)
                     time_dict.append(t)
     elif model == 'eckel':
-        print('model')
+        print(model)
         if case == 'WOB':
+            wob_dict=[]
             print(case)
             rop_ls = []
             depth = 0
             depth_final = 100
             model_parameters = [a,b,c,k,K]
-            for wob in range(0,500):#while depth < depth_final:
-                rop = rate_of_penetration_eckel(a,b,c,0.234, k, wob, 10, 300, rho, db, my, a11, a22, a33)
-                print(' rop: ', rop, wob, 'wob')
+            rpm = 150
+            wob = 100
+            q = 200
+            for q in range(0,400):#while depth < depth_final:
+                wob_dict.append(wob)
+                rop = rate_of_penetration_eckel_vary_founder(a,b,c,0.8, k, wob, rpm, q, rho, db, my, a11, a22, a33)
                 depth += rop*delta_t
                 t += delta_t
-                rop_ls.append(rop)
-                #if rop_ls[wob] < rop_ls[wob-1]:
-                #    print(rop_ls[wob])
-                #    print(wob)
-                #    break
-                
-                #depth_dict.append(depth)
-                #rop_dict.append(rop)
-                #time_dict.append(t)
+                rop_dict.append(rop)
+                depth_dict.append(rop)
+                time_dict.append(rpm)
+            plt.figure('ROP-RPM relationship')
+            plt.title('ROP-RPM relationship')
+            plt.plot(time_dict,rop_dict, 'b')
+            plt.xlabel('RPM[rev/min]')
+            plt.ylabel('Rate of Penetration[ft/hr]')
+            #plt.savefig('thesis_fig\\rpm_rop_curve_eckel.eps', format = 'eps')
+
         elif case == 'RPM':
             print(case)
             rop_ls = []

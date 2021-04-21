@@ -13,7 +13,7 @@ import rop_envs
 
 env = gym.make('rop-v0')
 n_actions = env.action_space.shape[-1]
-
+n_actions = 9
 action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
 
 model = DDPG('MlpPolicy', env, action_noise=action_noise, verbose=1)

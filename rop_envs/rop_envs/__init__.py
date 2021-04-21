@@ -2,15 +2,25 @@ from gym.envs.registration import register
 
 register(id = 'by-v0',
         entry_point = 'rop_envs.envs:ByModEnv')
-register(id = 'eckel-v0',
+register(id = 'eckel-outdated-v0',
         entry_point = 'rop_envs.envs:EckelEnv')
-register(id = 'eckel-disc-v0',
+register(id = 'eckel-disc-outdated-v0',
         entry_point = 'rop_envs.envs:EckelEnvDisc')
-register(id = 'eckel-mdisc-v0',
+register(id = 'eckel-mdisc-outdated-v0',
         entry_point = 'rop_envs.envs:EckelEnvMDisc')
-register(id = 'rop-v0',
+register(id = 'rop-outdated-v0',
         entry_point = 'rop_envs.envs:EckelRate')
 register(id = 'rop-v1',
         entry_point = 'rop_envs.envs:BYRate')
 register(id = 'bm-v0',
         entry_point = 'rop_envs.envs:BenchmarkEckel')
+register(id = 'rop-iv-v0',
+        entry_point = 'rop_envs.envs:EckelRateIV')
+
+register(id = 'eckel-v0',
+        entry_point = 'rop_envs.envs:EckelEnv1')
+
+register(id = 'eckel-v1',
+        entry_point = 'rop_envs.envs:EckelEnv2')
+register(id = 'by-v1',
+        entry_point = 'rop_envs.envs:BYEnv')

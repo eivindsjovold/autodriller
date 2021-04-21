@@ -15,7 +15,7 @@ class EckelRateIV(gym.Env):
     MAX_WOB = 300
     MAX_RPM = 300
     MAX_Q = 400
-    depth_final = random.uniform(10, 250)
+    depth_final = random.uniform(1, 2.5)
     delta_t = 1 /3600
     v = 0.1  #feet/s
     a11 = 0.005
@@ -59,10 +59,12 @@ class EckelRateIV(gym.Env):
                 rates[i] = 1
         return rates
     
-    def isDone(self):
-        return not self.state[3] < self.depth_final
+    def isDone(self, rop):
+        return self.detect_change(rop)
 
     def step(self, action):
+        if self.state[3] >= self.depth_final:
+            random.uniform(self.lb_k, self.ub_k)    
         wob = self.state[0]
         rpm = self.state[1]
         q = self.state[2]
@@ -73,8 +75,8 @@ class EckelRateIV(gym.Env):
         self.state[1] += rates[1]
         self.state[2] += rates[2]
         self.state[3] = depth
-        done = self.isDone()
         self.reward = reward
+        done = self.isDone(reward)
         #if self.formation_depth > self.disturb:
         #    self.change_formation()
         return self.state, reward, done, {}
@@ -135,13 +137,15 @@ class EckelRateIV(gym.Env):
         return self.plots
     
     def detect_change(self, rop):
-        if rop > self.last_rop + 10 or rop < self.last_rop -10:
+        if self.last_rop == 0 or rop == 0:
+            return False
+        elif rop > self.last_rop + 10 or rop < self.last_rop -10:
+            print('change detected')
             return True
         else:
             return False
 
 
     def reset(self):
-        self.K = random.uniform(self.lb_k, self.ub_k)
-        self.state = self.state
+        self.state = [self.state[0], self.state[1], self.state[3], 0]
         return self.state

@@ -19,23 +19,23 @@ def f4(a4,depth,pore_pressure_gradient,rho):
 
 ## Rho = equivalent cirulating density
 
-def f5(a5, wob, wob_init, db, db_init):
+def f5(a5, wob, wob_init, db, db_init,a11):
     wob_diameter = wob/db
     wob_threshold = wob_init/db_init
     temp = ((wob_diameter - wob_threshold)/( 4.0 - wob_threshold))
-    return np.power(temp , a5)
+    return max(0,(np.power(temp , a5) - a11*np.power(temp,((a5+1.33)))))
 
 
-def f6(a6, rpm):
-    return np.power(rpm/150, a6)
+def f6(a6, rpm, a22):
+    return max(0,(np.power(rpm/150, a6) - a22*(np.power(rpm/150,(a6+6)))))
 
 
 def f7(a7, h):
     return np.exp(-a7*h)
 
 
-def f8(a8, rho, q, v):
-    return np.power(jet_force(rho,q,v)/1000, a8)
+def f8(a8, rho, q, v, a33):
+    return max(0, (np.power(jet_force(rho,q,v), a8)) - a33*(np.power(jet_force(rho,q,v),a8+1.33)))
 
 
 def isFounder(operational_parameter, parameter_constant, hardness):
@@ -45,6 +45,10 @@ def isFounder(operational_parameter, parameter_constant, hardness):
         return False
 
 
+def rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33):
+    return f1(a1)*f2(depth,a2)*f3(gp, a3, depth)*f4(a4,depth,gp,rho)*f5(a5, wob, wob_init, db, db_init,a11)*f6(a6, rpm, a22)*f7(a7, h)*f8(a8, rho,q,v, a33)
+
+'''
 def rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33, f5_last, f6_last):
     founder_wob = isFounder(wob,a5,a1)
     founder_rpm = isFounder(rpm,a6,a1)
@@ -59,16 +63,4 @@ def rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,
 
     rop = f1(a1)*f2(depth,a2)*f3(gp, a3, depth)*f4(a4,depth,gp,rho)*wob_function*rpm_function*f7(a7, h)*f8(a8, rho,q,v)
     return rop, wob_function, rpm_function
-
-'''
-def rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33, prev_rop):
-    region = calc_region(a1,a5,a6,a8,wob,rpm,q)
-    print('region:', region)
-    temp = f1(a1)*f2(depth,a2)*f3(gp, a3, depth)*f4(a4,depth,gp,rho)*f5(a5, wob, wob_init, db, db_init)*f6(a6, rpm)*f7(a7, h)*f8(a8, rho,q,v)
-    if region == 1:
-        return temp
-    elif region == 2:
-        return temp
-    elif region == 3:
-        return prev_rop - 0.01*temp
 '''

@@ -20,16 +20,16 @@ db_init = db    #bit outer diameter in inches
 delta_t = 1/3600 #hrs
 h = 0.0001
 #Eckel
-v = 0.1  #feet/s
+v = 10  #feet/s
 a = 1
 b = 1
 c = 1
 K = 1
 k = 1
 my = 0.4
-a11 = 1
-a22 = 1
-a33 = 0.00005
+a11 = 0.005
+a22 = 0.005
+a33 = 0.005
 
 
 
@@ -38,7 +38,7 @@ time_dict, depth_dict, rop_dict, model_parameters = simulation(depth,gp,rho,wob,
 
 plt.figure('run_simulation.py plot')
 plt.subplot(211)
-plt.plot(time_dict, rop_dict, 'r')
+plt.plot(rop_dict, 'r')
 plt.xlabel('Time')
 plt.ylabel('Rate of Penetration')
 if case == 'RPM' or 'Q' or 'WOB':
