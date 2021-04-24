@@ -21,6 +21,8 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
     depth_dict = []
     rop_dict = []
     rpm_dict = []
+    wob_dict = []
+    flow_dict = []
     model_parameters = []
     t = 0.0
     
@@ -129,20 +131,30 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             depth = 0
             depth_final = 100
             model_parameters = [a,b,c,k,K]
-            rpm = 150
-            wob = 100
-            q = 200
+            rpm = 101
+            wob = 36
+            q = 86
             for q in range(0,400):#while depth < depth_final:
-                wob_dict.append(wob)
-                rop = rate_of_penetration_eckel_vary_founder(a,b,c,0.8, k, wob, rpm, q, rho, db, my, a11, a22, a33)
+                rop = rate_of_penetration_eckel_individual_founder(a,b,c,0.025, k, wob, rpm, q, rho, db, my, a11, a22, a33)
                 depth += rop*delta_t
                 t += delta_t
                 rop_dict.append(rop)
                 depth_dict.append(rop)
+                flow_dict.append(q)
+                wob_dict.append(wob)
+                rpm_dict.append(rpm)
                 time_dict.append(rpm)
+            max_value = -9999
+            rop_max = -9999
+            for i in range(len(rop_dict)):
+                if rop_dict[i] > rop_max:
+                    print(rop_dict[i], flow_dict[i])
+                    rop_max = rop_dict[i]
+                    max_value = flow_dict[i]
+            print('max wob value:',  max_value)
             plt.figure('ROP-RPM relationship')
             plt.title('ROP-RPM relationship')
-            plt.plot(time_dict,rop_dict, 'b')
+            plt.plot(rop_dict, 'b')
             plt.xlabel('RPM[rev/min]')
             plt.ylabel('Rate of Penetration[ft/hr]')
             #plt.savefig('thesis_fig\\rpm_rop_curve_eckel.eps', format = 'eps')

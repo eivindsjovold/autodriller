@@ -1,28 +1,28 @@
 import gym
 import rop_envs
 import csv
-from stable_baselines3 import A2C
-from stable_baselines3.a2c import MlpPolicy
+from stable_baselines3 import PPO
+from stable_baselines3.ppo import MlpPolicy
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.env_util import make_vec_env
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
-import tensorboard
+#import tensorboard
 
 
 
 env = gym.make('eckel-v0')
-vec_env = make_vec_env('eckel-v0', n_envs=30)
+vec_env = make_vec_env('eckel-v0', n_envs=4)
 env2 = gym.make('eckel-v1')
-vec_env2 = make_vec_env('eckel-v1', n_envs = 30)
+vec_env2 = make_vec_env('eckel-v1', n_envs = 4)
 test_env = gym.make('eckel-test-v0')
 test_env2 =  gym.make('eckel-test-v1')
 
 
-case = 'test_eckelenv2'
-savestring = 'trained_agents\\for_thesis_eckel'
-loadstring = 'agents_thesis\\for_thesis_eckel'
+case = 'train'
+savestring = 'trained_agents\\for_thesis_eckel_ppo'
+loadstring = 'trained_agents\\for_thesis_eckel_ppo'
 
 wob_dict = []
 rpm_dict = []
@@ -39,13 +39,13 @@ drillability = []
 delta_t = 1/3600
 
 if case == 'train':
-    model = A2C(MlpPolicy, vec_env2, verbose = 1, tensorboard_log='./tensorboard_logs')
-    model.learn(total_timesteps = 1000000, tb_log_name='session_eckelV2')
+    model = PPO(MlpPolicy, vec_env, verbose = 1)#, tensorboard_log='./tensorboard_logs')
+    model.learn(total_timesteps = 1000000)#), tb_log_name='session_eckelV2')
     model.save(savestring)
 
 
 elif case =='load':
-    model = A2C.load(loadstring)
+    model = PPO.load(loadstring)
     counter = 0
     wob = 10
     rpm = 10
@@ -54,17 +54,18 @@ elif case =='load':
     depth = 0
     for i in range(0,10):
         done = False
-        obs = env2.reset()
-        obs = np.array([wob,rpm,q,rop], dtype = np.float32)
+        obs = env.reset()
+        #obs = np.array([wob,rpm,q,rop], dtype = np.float32)
         while not done:
             counter += 1
             time += 1/3600
             action, _states = model.predict(obs)
-            obs, rewards, done, info = env2.step(action)
+            obs, rewards, done, info = env.step(action)
             wob = obs[0]
             rpm = obs[1]
             q = obs[2]
             rop = obs[3]
+            env.render()
             depth += rop*delta_t
             rop_dict.append(rop)
             time_dict.append(time)
@@ -87,13 +88,13 @@ elif case =='load':
 elif case == 'train_more':
     for i in range(10):
         print('training session:',i)    
-        model = A2C.load(loadstring, verbose = 1)
+        model = PPO.load(loadstring, verbose = 1)
         model.set_env(vec_env2)
         model.learn(total_timesteps=1000000)
         model.save(savestring)
 
 elif case == 'test_eckelenv1':
-    model = A2C.load(loadstring)
+    model = PPO.load(loadstring)
     counter = 0
     wob = 10
     rpm =10
@@ -140,7 +141,6 @@ elif case == 'test_eckelenv1':
     plt.plot(rop_dict, depth_dict)
     plt.show()
 elif case == 'test_eckelenv2':
-    loadstring = 'agents_thesis\\optimum_23_april_eckelenv2'
     model = A2C.load(loadstring)
     counter = 0
     wob = 10

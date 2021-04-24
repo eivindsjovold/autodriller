@@ -6,13 +6,16 @@ from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.env_util import make_vec_env
 import matplotlib.pyplot as plt
 from stable_baselines3.common.env_checker import check_env
+import csv
+import numpy as np
 
 env = gym.make('by-v1')
 vec_env = make_vec_env('by-v1', n_envs=30)
+test_env = gym.make('by-test-v1')
 
-case = 'load'
-savestring = 'trained_agents\\by_for_thesis'
-loadstring = 'agents_thesis\\by_for_thesis'
+case = 'test_byenv'
+savestring = 'trained_agents\\by_for_thesis_24_april_reduced_reward'
+loadstring = 'trained_agents\\by_for_thesis_24_april_reduced_reward'
 #check_env(env)
 
 wob_dict = []
@@ -21,6 +24,7 @@ flow_dict = []
 depth_dict = []
 rop_dict = []
 iteration = []
+time_dict = []
 reward = []
 split = []
 states = []
@@ -69,6 +73,109 @@ elif case =='load':
     #ax[4].set_title('reward')
     #plt.savefig('figures\\BY_load_agent')
     plt.show()
+
+
+elif case == 'test_byenv':
+
+    opt =[]
+    wob_opt = []
+    rpm_opt = []
+    flow_opt = []
+    rop_opt = []
+    a1 = []
+    a5 = []
+    a6 = []
+    a8 = []
+    length = []
+    with open('parameters_for_BY.csv', mode = 'r') as csvfile:
+        csv_reader = csv.reader(csvfile, delimiter = ',')
+        for row in csv_reader:
+            a1.append(float(row[0]))
+            a5.append(float(row[1]))
+            a6.append(float(row[2]))
+            a8.append(float(row[3]))
+            length.append(int(row[4]))
+        
+        csvfile.close()
+    
+    model = A2C.load(loadstring)
+    counter = 0
+    wob = 10
+    rpm = 10
+    q = 10
+    rop = 0
+    split = []
+    depth = 0
+    time = 0
+    delta_t = 1/3600
+    for i in range(len(a1)):
+        done = False
+        obs = test_env.reset(a1[i],a5[i],a6[i],a8[i],length[i])
+        while not done:
+            counter += 1
+            time += 1/3600
+            action, _states = model.predict(obs)
+            obs, rewards, done, info = test_env.step(action)
+            test_env.render()
+            wob = obs[0]
+            rpm = obs[1]
+            q = obs[2]
+            rop = obs[3]
+            depth += rop*delta_t
+            rop_dict.append(rop)
+            time_dict.append(time)
+            wob_dict.append(wob)
+            rpm_dict.append(rpm)
+            flow_dict.append(q)
+            depth_dict.append(depth)
+            reward.append(rewards)
+        split.append(time)
+
+    with open('optimal_value_BY.csv', mode = 'r') as csvfile:
+        csv_reader = csv.reader(csvfile, delimiter = ',')
+        for row in csv_reader:
+            wob_opt.append(float(row[4]))
+            rpm_opt.append(float(row[5]))
+            flow_opt.append(float(row[6]))
+            rop_opt.append(float(row[7]))        
+        csvfile.close()       
+
+    fig, ax = plt.subplots(5)
+    fig.suptitle('RL agent interacting with drilling simulation')
+    ax[0].plot(time_dict, rop_dict)
+    ax[0].hlines(rop_opt[0],0,split[0],colors= 'orange',linestyles='dashed',label='Optimal WOB')
+    for i in range(1,len(split)):
+        ax[0].hlines(rop_opt[i],split[i-1],split[i],colors= 'orange',linestyles='dashed',label='Optimal WOB')
+    ax[0].set_ylabel('ROP[ft/hr]')
+    ax[1].plot(time_dict, wob_dict)
+    ax[1].set_ylabel('WOB[klbs]')
+    ax[1].hlines(wob_opt[0],0,split[0],colors= 'orange',linestyles='dashed',label='Optimal WOB')
+    for i in range(1,len(split)):
+        ax[1].hlines(wob_opt[i],split[i-1],split[i],colors= 'orange',linestyles='dashed',label='Optimal WOB')
+    ax[2].plot(time_dict, rpm_dict)
+    ax[2].set_ylabel('RPM[rev/min]')
+    ax[2].hlines(rpm_opt[0],0,split[0],colors= 'orange',linestyles='dashed',label='Optimal RPM')
+    for i in range(1,len(split)):
+        ax[2].hlines(rpm_opt[i],split[i-1],split[i],colors= 'orange',linestyles='dashed',label='Optimal WOB')
+    ax[3].plot(time_dict,flow_dict)
+    ax[3].set_ylabel('Q[gal/min]')
+    ax[3].hlines(flow_opt[0],0,split[0],colors= 'orange',linestyles='dashed',label='Optimal q')
+    for i in range(1,len(split)):
+        ax[3].hlines(flow_opt[i],split[i-1],split[i],colors= 'orange',linestyles='dashed',label='Optimal WOB')
+    ax[4].plot(time_dict,depth_dict)
+    ax[4].set_ylabel('Depth[ft/hr]')
+    ax[4].set_xlabel('Time[hr]')
+    plt.show()
+
+    driller_plot_rop = np.flip(rop_dict)
+    driller_plot_depth = np.flip(depth_dict)
+    plt.figure('driller plot')
+    plt.plot(driller_plot_rop, driller_plot_depth)
+    plt.gca().invert_yaxis()
+    plt.ylabel('Depth[ft]')
+    plt.xlabel('ROP[ft/hr]')
+    plt.show()
+
 
 
         

@@ -27,14 +27,17 @@ def f5(a5, wob, wob_init, db, db_init,a11):
 
 
 def f6(a6, rpm, a22):
+    #print('wob:',max(0,(np.power(rpm/150, a6) - a22*(np.power(rpm/150,(a6+6))))))
     return max(0,(np.power(rpm/150, a6) - a22*(np.power(rpm/150,(a6+6)))))
 
 
 def f7(a7, h):
+    #print('rpm:',np.exp(-a7*h))
     return np.exp(-a7*h)
 
 
 def f8(a8, rho, q, v, a33):
+    #print('q:',max(0, (np.power(jet_force(rho,q,v), a8)) - a33*(np.power(jet_force(rho,q,v),a8+1.33))))
     return max(0, (np.power(jet_force(rho,q,v), a8)) - a33*(np.power(jet_force(rho,q,v),a8+1.33)))
 
 

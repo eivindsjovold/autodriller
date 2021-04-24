@@ -22,5 +22,19 @@ register(id = 'eckel-v0',
 
 register(id = 'eckel-v1',
         entry_point = 'rop_envs.envs:EckelEnv2')
+register(id = 'eckel-test-v0',
+        entry_point = 'rop_envs.envs:EckelTestEnv1')
+register(id = 'eckel-test-v1',
+        entry_point = 'rop_envs.envs:EckelTestEnv2')
 register(id = 'by-v1',
         entry_point = 'rop_envs.envs:BYEnv')
+register(id = 'by-test-v1',
+        entry_point = 'rop_envs.envs:BYTestEnv')
+
+register(id = 'by-cont-v1',
+        entry_point = 'rop_envs.envs:BYContEnv')
+register(id = 'eckel-cont-v0',
+        entry_point = 'rop_envs.envs:EckelContEnv1')
+register(id = 'eckel-cont-v1',
+        entry_point = 'rop_envs.envs:EckelContEnv2')
+
