@@ -30,12 +30,12 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
         print(model)
         if case == 'test_model':
             print(case)
-            a1 = 1.5
+            a1 = 1.0
             a2 = 0
             a3 = a2
             a4 = a2
             a7 = a2
-            a5 = 1.7-a1
+            a5 = 2-a1
             a6 = a1*0.5
             a8 = a1-0.9
             rpm = 60
@@ -55,9 +55,9 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             a33 = 0.005
             vec = [1.0, 1.5]
             rop_dict2 = []
-            for rpm in range(0,400):
+            for wob in range(0,400):
                 rop = rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,0,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11,a22,a33)
-                #rop = f5(a5, wob, wob_init, db, db_init,a11)
+                rop = f5(a5, wob, wob_init, db, db_init,a11)
                 #rop = f6(a6, rpm, a22)
                 #rop = f8(a8, rho, q, v, a33)
                 rop_dict.append(rop)

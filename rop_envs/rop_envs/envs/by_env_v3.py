@@ -151,7 +151,7 @@ class BYEnv(gym.Env):
         self.state = np.array([self.state[0],self.state[1],self.state[2],self.state[3]], dtype = np.float32)
         self.rop_max = 0
         self.reward = 0
-        self.a1 = random.uniform(1,1.5)
+        self.a1 = 1
         self.a5 =(2-self.a1)
         self.a2 = 0
         self.a3 = 0
@@ -161,6 +161,7 @@ class BYEnv(gym.Env):
         self.num_it = 0
         self.depth = 0
         self.depth_final = random.randint(50,250)
+        self.depth_final = 100
         self.counter = 0
         self.rop_threshold = 0
         return self.state

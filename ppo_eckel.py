@@ -20,7 +20,7 @@ test_env = gym.make('eckel-test-v0')
 test_env2 =  gym.make('eckel-test-v1')
 
 
-case = 'train'
+case = 'load'
 savestring = 'trained_agents\\for_thesis_eckel_ppo'
 loadstring = 'trained_agents\\for_thesis_eckel_ppo'
 
