@@ -40,7 +40,7 @@ delta_t = 1/3600
 
 if case == 'train':
     model = PPO(MlpPolicy, vec_env, verbose = 1)#, tensorboard_log='./tensorboard_logs')
-    model.learn(total_timesteps = 1000000)#), tb_log_name='session_eckelV2')
+    model.learn(total_timesteps = 10000000)#), tb_log_name='session_eckelV2')
     model.save(savestring)
 
 

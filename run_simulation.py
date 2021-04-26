@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 from models.simulation import simulation
 from models.bourgouyne_young_1974.read_from_case import read_from_case
 
-case = 'WOB'
-model = 'eckel'
+case = 'test_model'
+model = 'BY'
 
 ## Drilling parameters
 #BY

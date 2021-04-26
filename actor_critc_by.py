@@ -14,8 +14,8 @@ vec_env = make_vec_env('by-v1', n_envs=30)
 test_env = gym.make('by-test-v1')
 
 case = 'test_byenv'
-savestring = 'trained_agents\\by_for_thesis_24_april_reduced_reward'
-loadstring = 'trained_agents\\by_for_thesis_24_april_reduced_reward'
+savestring = 'trained_agents\\by_for_thesis_25_april_reduced_reward_changed_wob_founder'
+loadstring = 'agents_thesis\\by_for_thesis_25_april_reduced_reward'
 #check_env(env)
 
 wob_dict = []
@@ -35,25 +35,25 @@ if case == 'train':
     model.save(savestring)
 
 elif case == 'train_more':
-    for i in range(10):
-        print('training session:',i)    
-        model = A2C.load(loadstring, verbose = 1)
-        model.set_env(vec_env)
-        model.learn(total_timesteps=1000000)
-        model.save(savestring)
+    #for i in range(10):
+        #print('training session:',i)    
+    model = A2C.load(loadstring, verbose = 1)
+    model.set_env(vec_env)
+    model.learn(total_timesteps=5000000)
+    model.save(savestring)
 
 elif case =='load':
     model = A2C.load(loadstring)
     obs = env.reset()
     counter = 0
-    for i in range(3):
+    for i in range(10):
         done = False
         obs = env.reset()
         while not done:
             counter += 1
             action, _states = model.predict(obs)
             obs, rewards, done, info = env.step(action)
-            env.render()
+            #env.render()
             wob_dict.append(obs[0])
             rpm_dict.append(obs[1])
             flow_dict.append(obs[2])
@@ -108,14 +108,17 @@ elif case == 'test_byenv':
     depth = 0
     time = 0
     delta_t = 1/3600
+    init_vals = np.array([50,50,50,150],dtype = np.float32)
     for i in range(len(a1)):
         done = False
-        obs = test_env.reset(a1[i],a5[i],a6[i],a8[i],length[i])
+        obs = test_env.reset(a1[i],length[i],init_vals)
         while not done:
             counter += 1
             time += 1/3600
             action, _states = model.predict(obs)
             obs, rewards, done, info = test_env.step(action)
+
+            #if counter % 200 == 0:
             test_env.render()
             wob = obs[0]
             rpm = obs[1]
@@ -130,6 +133,7 @@ elif case == 'test_byenv':
             depth_dict.append(depth)
             reward.append(rewards)
         split.append(time)
+        init_vals = np.array([wob,rpm,q,rop], dtype = np.float32)
 
     with open('optimal_value_BY.csv', mode = 'r') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter = ',')

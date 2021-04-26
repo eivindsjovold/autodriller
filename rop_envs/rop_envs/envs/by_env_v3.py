@@ -29,7 +29,7 @@ class BYEnv(gym.Env):
         self.depth_final = 50
         self.depth = 0
         self.viewer = True
-        self.state = np.array([10,10,10,0], dtype = np.float32)
+        self.state = np.array([50,50,50,0], dtype = np.float32)
         self.reward = 0
         self.rop_max = 0
         self.last_rop = 0
@@ -42,10 +42,11 @@ class BYEnv(gym.Env):
         self.a2 = 0
         self.a3 = 0
         self.a4 = 0
-        self.a5 = random.uniform(0.5,1)
-        self.a6 = random.uniform(0.4,1)
+        self.a5 = (2-self.a1)
+        self.a6 = (self.a1*0.5)
         self.a7 = 0
-        self.a8 = random.uniform(0.3,0.6)
+        self.a8 = self.a1-0.9
+        self.rop_threshold = 0
         self.counter = 0
 
     
@@ -89,19 +90,23 @@ class BYEnv(gym.Env):
         rop = rate_of_penetration_modv3(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,depth,self.gp,self.rho,wob,self.wob_init,self.db,self.db_init,rpm,self.h,q,self.v, self.a11, self.a22, self.a33)
         if self.check_for_nan(rop):
             rop = 0
-
         self.depth += rop*self.delta_t            
         self.state[0] = wob
         self.state[1] = rpm
         self.state[2] = q
-        self.state[3] = rop        
+        self.state[3] = rop     
+        
         
         if rop > self.last_rop:
-            reward_1 = rop/100
+            reward_1 = 1
         elif rop == self.last_rop:
             reward_1 = 0
         else:
-            reward_1 = -rop/100
+            reward_1 = -1
+        
+        if rop > self.rop_threshold:
+            reward_1 += 1
+            self.rop_threshold = rop
 
         self.last_rop = rop
         self.num_it += 1
@@ -111,14 +116,15 @@ class BYEnv(gym.Env):
             reward_2 = 100
         else:
             reward_2 = 0
-        reward = reward_1 + reward_2
+        reward = reward_1# + reward_2
         
         self.counter = self.useless_counter(rop,self.counter)
         
+
         if self.counter >= 100:
             reward = -1000
             done = True
-            self.state = np.array([10,10,10,0],dtype = np.float32)
+            self.state = np.array([50,50,50,0],dtype = np.float32)
  
         self.reward = reward
         return self.state, reward, done, {}
@@ -137,21 +143,26 @@ class BYEnv(gym.Env):
         return counter
 
     def reset(self):
+        random_reset = random.uniform(1,20)
+        #if random_reset == 10:
+        #    print('random')
+        #    self.state = np.array([10,10,10,0],dtype=np.float32)
+        #else:
         self.state = np.array([self.state[0],self.state[1],self.state[2],self.state[3]], dtype = np.float32)
         self.rop_max = 0
         self.reward = 0
         self.a1 = random.uniform(1,1.5)
-        self.a5 = random.uniform(0.5,1)
+        self.a5 =(2-self.a1)
         self.a2 = 0
         self.a3 = 0
         self.a4 = 0
-        self.a6 = 1
-        self.a6 = random.uniform(0.4,1)
-        self.a8 = random.uniform(0.3,0.6)
+        self.a6 = (self.a1*0.5)
+        self.a8 = self.a1-0.9
         self.num_it = 0
         self.depth = 0
         self.depth_final = random.randint(50,250)
         self.counter = 0
+        self.rop_threshold = 0
         return self.state
 
 
@@ -192,10 +203,10 @@ class BYTestEnv(gym.Env):
         self.a2 = 0
         self.a3 = 0
         self.a4 = 0
-        self.a5 = random.uniform(0.5,1)
-        self.a6 = random.uniform(0.4,1)
+        self.a5 = (2-self.a1)
+        self.a6 = (self.a1*0.5)
         self.a7 = 0
-        self.a8 = random.uniform(0.3,0.6)
+        self.a8 = self.a1-0.9
         self.counter = 0
 
     
@@ -229,7 +240,6 @@ class BYTestEnv(gym.Env):
         else:
             return q
     
-
     def step(self, action):
         depth = self.depth
         rates = self.actionToValue(action)
@@ -244,7 +254,7 @@ class BYTestEnv(gym.Env):
         self.state[0] = wob
         self.state[1] = rpm
         self.state[2] = q
-        self.state[3] = rop       
+        self.state[3] = rop        
         
         if rop > self.last_rop:
             reward_1 = 1
@@ -257,17 +267,18 @@ class BYTestEnv(gym.Env):
         self.num_it += 1
         done = self.isDone()
         
-        if done:
-            reward_2 = 1000
-        else:
-            reward_2 = 0
-        reward = reward_1 + reward_2
+        #if done:
+        #    reward_2 = 100
+        #else:
+        #    reward_2 = 0
+        reward = reward_1# + reward_2
         
         self.counter = self.useless_counter(rop,self.counter)
         
         if self.counter >= 100:
-            reward = -1000
+            reward = -100
             done = True
+            self.state = np.array([10,10,10,0],dtype = np.float32)
  
         self.reward = reward
         return self.state, reward, done, {}
@@ -285,18 +296,17 @@ class BYTestEnv(gym.Env):
             counter = 0
         return counter
 
-    def reset(self, a1, a5, a6, a8,length):
-        self.state = np.array([self.state[0],self.state[1],self.state[2],self.state[3]], dtype = np.float32)
+    def reset(self, a1,length, init_vals):
+        self.state = init_vals
         self.rop_max = 0
         self.reward = 0
         self.a1 = a1
-        self.a5 = a5
+        self.a5 = (2-a1)
         self.a2 = 0
         self.a3 = 0
         self.a4 = 0
-        self.a6 = 1
-        self.a6 = a6
-        self.a8 = a8
+        self.a6 = (a1*0.5)
+        self.a8 = (a1-0.9)
         self.num_it = 0
         self.depth = 0
         self.depth_final = length

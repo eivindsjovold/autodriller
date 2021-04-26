@@ -27,8 +27,7 @@ def f5(a5, wob, wob_init, db, db_init,a11):
 
 
 def f6(a6, rpm, a22):
-    #print('wob:',max(0,(np.power(rpm/150, a6) - a22*(np.power(rpm/150,(a6+6))))))
-    return max(0,(np.power(rpm/150, a6) - a22*(np.power(rpm/150,(a6+6)))))
+    return max(0,(np.power(rpm/150, a6) - a22*(np.power(rpm/150,(a6+8)))))
 
 
 def f7(a7, h):
@@ -38,7 +37,7 @@ def f7(a7, h):
 
 def f8(a8, rho, q, v, a33):
     #print('q:',max(0, (np.power(jet_force(rho,q,v), a8)) - a33*(np.power(jet_force(rho,q,v),a8+1.33))))
-    return max(0, (np.power(jet_force(rho,q,v), a8)) - a33*(np.power(jet_force(rho,q,v),a8+1.33)))
+    return max(0, 1.5*(np.power(jet_force(rho,q,v), a8)) - a33*(np.power(jet_force(rho,q,v),a8+1.33)))
 
 
 def isFounder(operational_parameter, parameter_constant, hardness):
@@ -49,7 +48,7 @@ def isFounder(operational_parameter, parameter_constant, hardness):
 
 
 def rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33):
-    return f1(a1)*f2(depth,a2)*f3(gp, a3, depth)*f4(a4,depth,gp,rho)*f5(a5, wob, wob_init, db, db_init,a11)*f6(a6, rpm, a22)*f7(a7, h)*f8(a8, rho,q,v, a33)
+    return f1(a1)*f5(a5, wob, wob_init, db, db_init,a11)*f6(a6, rpm, a22)*f8(a8, rho,q,v, a33)
 
 '''
 def rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33, f5_last, f6_last):

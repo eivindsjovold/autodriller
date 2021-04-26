@@ -1,7 +1,7 @@
 from models.bourgouyne_young_1974.rate_of_penetration import rate_of_penetration
 from models.bourgouyne_young_1974.rate_of_penetration_modified import rate_of_penetration_mod
 from models.bourgouyne_young_1974.generate_parameter import generate_range
-from models.bourgouyne_young_1974.rate_of_penetration_v3 import rate_of_penetration_modv3, f6, f5
+from models.bourgouyne_young_1974.rate_of_penetration_v3 import rate_of_penetration_modv3, f6, f5, f8
 from models.eckels.eckel import rate_of_penetration_eckel
 from models.eckels.eckel import rate_of_penetration_eckel_individual_founder, rate_of_penetration_eckel_vary_founder
 from models.hareland.hareland_model import rop_hareland, area
@@ -30,14 +30,14 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
         print(model)
         if case == 'test_model':
             print(case)
+            a1 = 1.5
             a2 = 0
             a3 = a2
             a4 = a2
             a7 = a2
-            a5 = 0.5
-            a6 = 0.4
-            a8 = 0.3
-            a1 = 1
+            a5 = 1.7-a1
+            a6 = a1*0.5
+            a8 = a1-0.9
             rpm = 60
             wob_m = 0
             rpm_m = 0
@@ -47,17 +47,29 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             rop = 0
             wob_part = rop
             rpm_part = rop
-            wob =150
-            rpm = 200
+            wob =100
+            rpm = 100
             q = 200
-            for wob in range(0,200):
+            a11 = 0.005
+            a22 = 0.005
+            a33 = 0.005
+            vec = [1.0, 1.5]
+            rop_dict2 = []
+            for rpm in range(0,400):
                 rop = rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,0,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11,a22,a33)
+                #rop = f5(a5, wob, wob_init, db, db_init,a11)
+                #rop = f6(a6, rpm, a22)
+                #rop = f8(a8, rho, q, v, a33)
                 rop_dict.append(rop)
                 time += delta_t
                 depth += rop*delta_t
                 depth_dict.append(depth)
                 time_dict.append(time)
-                depth_dict.append(depth)         
+                depth_dict.append(depth)
+            #plt.figure()
+            #plt.plot(rop_dict[0:400])
+            #plt.plot(rop_dict2[400:799]) 
+            #plt.show()        
         
         
         
@@ -79,7 +91,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             #a5 = 2
             #a6 = 1
             #a8 = 0.6
-            a1 = random.uniform(1.5,1.9)
+            a1 = random.uniform(1.0,1.9)
             a5 = 2
             a6 = 1
             a8 = 0.3

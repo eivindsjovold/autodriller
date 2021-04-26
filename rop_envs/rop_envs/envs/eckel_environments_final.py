@@ -60,21 +60,18 @@ class EckelEnv1(gym.Env):
         return not self.depth < self.depth_final
 
     def step(self, action):
-        wob = self.state[0]
-        rpm = self.state[1]
-        q = self.state[2]
-        rop = self.state[3]
         rates = self.actionToValue(action)
-        reward, rop = self.alternative_reward(rates)
         self.state[0] += rates[0]
         self.state[1] += rates[1]
         self.state[2] += rates[2]
+        rop = self.state[3]
+        reward, rop = self.alternative_reward(rates)
         self.state[3] = rop
         self.counter = self.useless_counter(rop,self.counter)
         done = self.isDone()
         if done:
             reward = + 1000
-        if self.counter >= 10:
+        if self.counter >= 100:
             reward = -1000
             done = True
         self.reward = reward
@@ -91,16 +88,14 @@ class EckelEnv1(gym.Env):
         return number != number
 
     def alternative_reward(self, rates):
-        wob = self.state[0] + rates[0]
-        rpm = self.state[1] + rates[1]
-        q = self.state[2] + rates[2]
+        wob = self.state[0]
+        rpm = self.state[1]
+        q = self.state[2]
         depth = self.state[3]
         rop = rate_of_penetration_eckel_individual_founder(self.a, self.b, self.c, self.K, self.k, wob, rpm, q, self.rho, self.d_n, self.my, self.a11, self.a22, self.a33)
         if rop > self.last_rop:
             reward_1 = 1
         elif rop < self.last_rop:
-            reward_1 = -1
-        elif rop == 0:
             reward_1 = -1
         else:
             reward_1 = 0
@@ -129,6 +124,7 @@ class EckelEnv1(gym.Env):
         self.K = random.uniform(self.lb_k, self.ub_k)
         self.state = np.array([10,10,10,0], dtype = np.float32)
         self.depth_final = random.uniform(50, 250)
+        #self.depth_final = 10
         self.depth = 0
         self.counter = 0
         return self.state

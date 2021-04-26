@@ -138,9 +138,12 @@ elif case == 'BY':
         csv_reader = csv.reader(csvfile, delimiter = ',')
         for row in csv_reader:
             a1.append(float(row[0]))
-            a5.append(float(row[1]))
-            a6.append(float(row[2]))
-            a8.append(float(row[3]))
+            #a5.append(float(row[1]))
+            #a6.append(float(row[2]))
+            #a8.append(float(row[3]))
+            a5.append(2-float(row[0]))
+            a6.append(float(row[0])*0.5)
+            a8.append(float(row[0])-0.9)
             length.append(int(row[4]))              
 
 
