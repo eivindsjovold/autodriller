@@ -144,13 +144,13 @@ class SimpleEnv2(gym.Env):
             reward_1 = -1
         else:
             reward_1 = 0
-        if self.state[2] == self.wob_opt:
-            reward_2 = 1
-            #self.best_value = self.state[2]
-        else:
-            reward_2 = 0
+        #if self.state[2] == self.wob_opt:
+        #    reward_2 = 1
+        #    #self.best_value = self.state[2]
+        #else:
+        #    reward_2 = 0
         self.depth += self.state[2]*self.delta_t
-        reward = reward_1 + reward_2
+        reward = reward_1# + reward_2
         self.counter = self.useless_counter(rop,self.counter)
         done = self.isDone()
 

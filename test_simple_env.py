@@ -1,6 +1,6 @@
 import gym
 import rop_envs
-from stable_baselines3 import A2C
+from stable_baselines3 import A2C, PPO
 from stable_baselines3.a2c import MlpPolicy
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.env_util import make_vec_env
@@ -21,7 +21,7 @@ if case == 'train':
     model.save(savestring)
 
 elif case == 'load':
-    model = A2C.load(loadstring)
+    model = PPO.load(loadstring)
     obs = env.reset()
     done = False
     rop = []
@@ -61,3 +61,9 @@ elif case == 'train_more':
     model.learn(total_timesteps=100000)
     model.save(savestring)
 
+elif case == 'ppo':
+    model = PPO.load('trained_agents\\ppo_simple_env')
+    model.set_env(env)
+    model.learn(total_timesteps = 250000)
+    model.save('trained_agents\\ppo_simple_env')
+     

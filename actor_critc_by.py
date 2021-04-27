@@ -13,9 +13,9 @@ env = gym.make('by-v1')
 vec_env = make_vec_env('by-v1', n_envs=30)
 test_env = gym.make('by-test-v1')
 
-case = 'load'
+case = 'test_byenv'
 savestring = 'trained_agents\\by_for_thesis_26_april_reduced_reward_changed_wob_founder'
-loadstring = 'trained_agents\\by_for_thesis_26_april_reduced_reward_changed_wob_founder'
+loadstring = 'agents_thesis\\by_for_thesis_25_april_reduced_reward'
 #check_env(env)
 
 wob_dict = []
