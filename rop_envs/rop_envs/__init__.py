@@ -38,3 +38,9 @@ register(id = 'eckel-cont-v0',
 register(id = 'eckel-cont-v1',
         entry_point = 'rop_envs.envs:EckelContEnv2')
 
+register(id = 'simple-v0',
+        entry_point = 'rop_envs.envs:SimpleEnv1')
+register(id = 'simple-v1',
+        entry_point = 'rop_envs.envs:SimpleEnv2')
+
+

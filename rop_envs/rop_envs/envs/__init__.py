@@ -16,3 +16,4 @@ from rop_envs.envs.by_env_v3 import BYTestEnv
 from rop_envs.envs.environments_DDPG import EckelContEnv1
 from rop_envs.envs.environments_DDPG import EckelContEnv2
 from rop_envs.envs.environments_DDPG import BYContEnv
+from rop_envs.envs.simple_env import SimpleEnv1, SimpleEnv2

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from models.simulation import simulation
 from models.bourgouyne_young_1974.read_from_case import read_from_case
-
+'''
 case = 'test_model'
 model = 'BY'
 
@@ -50,4 +50,15 @@ else:
     plt.ylabel('Depth')
 
 plt.savefig('models\\figures\\rop_test.png')
+plt.show()
+'''
+
+
+from models.simple_model import rop
+rop_dict = []
+for i in range(0,200):
+    r = rop(i,100)
+    rop_dict.append(r)
+plt.figure('2')
+plt.plot(rop_dict)
 plt.show()
