@@ -3,7 +3,7 @@ from models.bourgouyne_young_1974.rate_of_penetration_modified import rate_of_pe
 from models.bourgouyne_young_1974.generate_parameter import generate_range
 from models.bourgouyne_young_1974.rate_of_penetration_v3 import rate_of_penetration_modv3, f6, f5, f8
 from models.eckels.eckel import rate_of_penetration_eckel
-from models.eckels.eckel import rate_of_penetration_eckel_individual_founder, rate_of_penetration_eckel_vary_founder
+from models.eckels.eckel import rate_of_penetration_eckel_individual_founder, rate_of_penetration_eckel_vary_founder, rop_eck
 from models.hareland.hareland_model import rop_hareland, area
 import numpy as np
 import gym
@@ -143,11 +143,11 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             depth = 0
             depth_final = 100
             model_parameters = [a,b,c,k,K]
-            rpm = 101
-            wob = 36
-            q = 86
-            for q in range(0,400):#while depth < depth_final:
-                rop = rate_of_penetration_eckel_individual_founder(a,b,c,0.025, k, wob, rpm, q, rho, db, my, a11, a22, a33)
+            rpm = 136
+            wob = 118
+            q = 130
+            for i in range(0,400):#while depth < depth_final:
+                rop = rop_eck(a,b,c,0.7, k, wob, rpm, q, rho, db, my, a11, a22, a33)
                 depth += rop*delta_t
                 t += delta_t
                 rop_dict.append(rop)
@@ -160,9 +160,9 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             rop_max = -9999
             for i in range(len(rop_dict)):
                 if rop_dict[i] > rop_max:
-                    print(rop_dict[i], flow_dict[i])
+                    print(rop_dict[i], wob_dict[i])
                     rop_max = rop_dict[i]
-                    max_value = flow_dict[i]
+                    max_value = wob_dict[i]
             print('max wob value:',  max_value)
             plt.figure('ROP-RPM relationship')
             plt.title('ROP-RPM relationship')

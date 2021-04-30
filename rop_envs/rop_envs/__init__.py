@@ -42,5 +42,11 @@ register(id = 'simple-v0',
         entry_point = 'rop_envs.envs:SimpleEnv1')
 register(id = 'simple-v1',
         entry_point = 'rop_envs.envs:SimpleEnv2')
+register(id = 'simple-v2',
+        entry_point = 'rop_envs.envs:SimpleEnv3')
+
+
+register(id = 'memory-eckel-v0',
+        entry_point = 'rop_envs.envs:EckelMemory1')
 
 

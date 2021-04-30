@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 from models.simulation import simulation
 from models.bourgouyne_young_1974.read_from_case import read_from_case
-'''
-case = 'test_model'
-model = 'BY'
+
+case = 'WOB'
+model = 'eckel'
 
 ## Drilling parameters
 #BY
@@ -62,3 +62,4 @@ for i in range(0,200):
 plt.figure('2')
 plt.plot(rop_dict)
 plt.show()
+'''

@@ -11,9 +11,11 @@ from rop_envs.envs.eckel_environments_final import EckelEnv1
 from rop_envs.envs.eckel_environments_final import EckelTestEnv1
 from rop_envs.envs.eckel_environments_final import EckelEnv2
 from rop_envs.envs.eckel_environments_final import EckelTestEnv2
+from rop_envs.envs.eckel_environments_final import EckelMemory1
+
 from rop_envs.envs.by_env_v3 import BYEnv
 from rop_envs.envs.by_env_v3 import BYTestEnv
 from rop_envs.envs.environments_DDPG import EckelContEnv1
 from rop_envs.envs.environments_DDPG import EckelContEnv2
 from rop_envs.envs.environments_DDPG import BYContEnv
-from rop_envs.envs.simple_env import SimpleEnv1, SimpleEnv2
+from rop_envs.envs.simple_env import SimpleEnv1, SimpleEnv2, SimpleEnv3
