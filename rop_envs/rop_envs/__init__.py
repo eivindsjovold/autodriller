@@ -49,4 +49,7 @@ register(id = 'simple-v2',
 register(id = 'memory-eckel-v0',
         entry_point = 'rop_envs.envs:EckelMemory1')
 
+register(id = 'memory-by-v0',
+        entry_point = 'rop_envs.envs:BYMemory')
+
 

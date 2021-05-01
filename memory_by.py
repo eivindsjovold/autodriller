@@ -13,13 +13,13 @@ import numpy as np
 #import tensorboard
 # Prøv å trene på lave verdier
 
-env = gym.make('memory-eckel-v0')
-vec_env = make_vec_env('memory-eckel-v0', n_envs=16)
+env = gym.make('memory-by-v0')
+vec_env = make_vec_env('memory-by-v0', n_envs=16)
 
 
-case = 'load'
-savestring = 'trained_agents\\memory_eckel_1_may'
-loadstring = 'trained_agents\\memory_eckel_1_may'
+case = 'train'
+savestring = 'trained_agents\\memory_by_1_may_build'
+loadstring = 'trained_agents\\memory_by_1_may_build'
 
 
 wob_dict = []
@@ -40,14 +40,14 @@ delta_t = 1/3600
 if case == 'train':
     print(case)
     model = A2C(MlpPolicy, vec_env, verbose = 1)#, tensorboard_log='./tensorboard_logs')
-    model.learn(total_timesteps = 500000)#, tb_log_name='memory_eckel')
+    model.learn(total_timesteps = 2500000)#, tb_log_name='memory_eckel')
     model.save(savestring)
 
 elif case == 'train_more':
     print(case)
     model = A2C.load(loadstring)
-    model.set_env(env)
-    model.learn(total_timesteps=250000)
+    model.set_env(vec_env)
+    model.learn(total_timesteps=1000000)
     model.save(savestring)
 
 elif case == 'load':
@@ -77,17 +77,18 @@ elif case == 'load':
             reward.append(rewards)
             iteration.append(counter)
     print(counter)
+    print(sum(reward))
     fig, ax = plt.subplots(5)
     fig.suptitle('RL agent inspired by extremum seeking')
     ax[0].plot(iteration, rop_dict)
-    ax[0].plot([0,iteration[-1]],[272.6068613868504,272.6068613868504])
+    ax[0].plot([0,iteration[-1]],[312.7068437460617,312.7068437460617])
     ax[0].set_title('ROP[ft/hr]')
     ax[1].plot(wob_dict)
-    ax[1].plot([0,iteration[-1]],[33,33])
+    ax[1].plot([0,iteration[-1]],[111,111])
     ax[2].plot(rpm_dict)
-    ax[2].plot([0,iteration[-1]],[97,97])
+    ax[2].plot([0,iteration[-1]],[204,204])
     ax[3].plot(q_dict)
-    ax[3].plot([0,iteration[-1]],[130,130])
+    ax[3].plot([0,iteration[-1]],[87,87])
     ax[4].plot(reward)
     
     #plt.savefig('figures\\BY_load_agent')

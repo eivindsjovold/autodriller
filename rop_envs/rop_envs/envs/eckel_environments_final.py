@@ -591,19 +591,25 @@ class EckelMemory1(gym.Env):
         if self.check_for_nan(self.state[6]) == True:
             self.state[6] = 0
         
-        #if self.state[6] > self.state[7]:
-        #    reward_1 = 1.0
-        #elif self.state[6] < self.state[7]:
-        #    reward_1 = -1.0
-        #else: 
-        #    reward_1 = 0
-        
+
+        #if self.state[4] < 0 or self.state[2] < 0 or self.state[0] < 0:
+        #    reward_2 = -10
+        #elif self.state[4] > self.MAX_Q or self.state[2] > self.MAX_RPM or self.state[2] > self.MAX_WOB:
+        #    reward_2 = -10
+        #else:
+        #    reward_2 = 0
+
         #difference = np.diff([self.state[7],self.state[6]])
         
         #reward_1 = difference[0]
+        #reward_1 = self.state[6] - self.state[7]
         reward_1 = self.state[6] - self.state[7]
-        self.depth += self.state[6]*self.delta_t
-        reward = reward_1
+        if self.state[6] < 0:
+            self.depth += 0
+        else:
+
+            self.depth += self.state[6]*self.delta_t
+        reward = reward_1# + reward_2
 
         self.counter = self.useless_counter(self.state[6],self.counter)
         done = self.isDone()
@@ -616,6 +622,8 @@ class EckelMemory1(gym.Env):
             done = True
         self.reward = reward
         self.num_steps += 1
+        if self.num_steps % 250 == 0:
+            print(self.state)
         return self.state, reward, done, {}
 
 
@@ -638,7 +646,7 @@ class EckelMemory1(gym.Env):
     def reset(self):
         #self.K = random.uniform(self.lb_k, self.ub_k)
         #self.state = np.array([10,10,10,0], dtype = np.float32)
-        self.state = np.array([5,5,5,5,5,5,0,0], dtype = np.float32)
+        self.state = np.array([0,0,0,0,0,0,0,0], dtype = np.float32)
         #self.state = self.state
         #self.depth_final = random.uniform(50, 250)
         self.depth = 0

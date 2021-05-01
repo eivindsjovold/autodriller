@@ -47,28 +47,34 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             rop = 0
             wob_part = rop
             rpm_part = rop
-            wob =100
-            rpm = 100
-            q = 200
+            wob =111
+            rpm = 204
+            q = 87
             a11 = 0.005
             a22 = 0.005
             a33 = 0.005
             vec = [1.0, 1.5]
             rop_dict2 = []
-            for wob in range(0,400):
+            rop_max = 0
+            index = 0
+            for i in range(0,400):
                 rop = rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,0,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11,a22,a33)
-                rop = f5(a5, wob, wob_init, db, db_init,a11)
+                #rop = f5(a5, wob, wob_init, db, db_init,a11)
                 #rop = f6(a6, rpm, a22)
                 #rop = f8(a8, rho, q, v, a33)
                 rop_dict.append(rop)
+                if rop > rop_max:
+                    index = q
+                    rop_max = rop
+                    print('index', index)
+                    print('max', rop_max)
                 time += delta_t
                 depth += rop*delta_t
                 depth_dict.append(depth)
                 time_dict.append(time)
                 depth_dict.append(depth)
             #plt.figure()
-            #plt.plot(rop_dict[0:400])
-            #plt.plot(rop_dict2[400:799]) 
+            #plt.plot(rop_dict)
             #plt.show()        
         
         
@@ -141,13 +147,13 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             print(case)
             rop_ls = []
             depth = 0
-            depth_final = 100
+            depth_final = 40
             model_parameters = [a,b,c,k,K]
-            rpm = 136
-            wob = 118
+            rpm = 97
+            wob = 33
             q = 130
             for i in range(0,400):#while depth < depth_final:
-                rop = rop_eck(a,b,c,0.7, k, wob, rpm, q, rho, db, my, a11, a22, a33)
+                rop = rate_of_penetration_eckel_vary_founder(a,b,c,1, k, wob, rpm, q, rho, db, my, a11, a22, a33)
                 depth += rop*delta_t
                 t += delta_t
                 rop_dict.append(rop)
@@ -160,9 +166,9 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             rop_max = -9999
             for i in range(len(rop_dict)):
                 if rop_dict[i] > rop_max:
-                    print(rop_dict[i], wob_dict[i])
+                    print(rop_dict[i], flow_dict[i])
                     rop_max = rop_dict[i]
-                    max_value = wob_dict[i]
+                    max_value = flow_dict[i]
             print('max wob value:',  max_value)
             plt.figure('ROP-RPM relationship')
             plt.title('ROP-RPM relationship')
