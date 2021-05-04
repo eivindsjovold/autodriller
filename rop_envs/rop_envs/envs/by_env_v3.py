@@ -334,19 +334,22 @@ class BYMemory(gym.Env):
  
 
     def __init__(self):
-        self.depth_final = 150
+        self.depth_final = 90
         self.depth = 0
         self.viewer = True
-        self.state = np.array([0,0,0,0,0,0,0,0], dtype = np.float32)
+        self.state = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], dtype = np.float32)
         self.reward = 0
         self.rop_max = 0
         self.last_rop = 0
         self.num_it = 0
-        high = np.array([self.MAX_WOB, self.MAX_WOB, self.MAX_RPM, self.MAX_RPM, self.MAX_Q, self.MAX_Q, 10000, 10000], dtype = np.float32)
-        low = np.array([0,0,0,0,0,0,0,0], dtype = np.float32)
+        high = np.array([self.MAX_WOB, self.MAX_WOB, self.MAX_WOB, self.MAX_WOB,\
+        self.MAX_RPM, self.MAX_RPM, self.MAX_RPM, self.MAX_RPM,\
+        self.MAX_Q, self.MAX_Q, self.MAX_Q, self.MAX_Q,\
+        10000, 10000,10000,10000], dtype = np.float32)
+
+        low = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], dtype = np.float32)
         self.observation_space = spaces.Box(low = low, high = high, dtype = np.float32)
         self.action_space = spaces.MultiDiscrete([3,3,3])
-        #self.a1 = random.uniform(1.0,1.5)
         self.a1 = 1
         self.a2 = 0
         self.a3 = 0
@@ -354,7 +357,7 @@ class BYMemory(gym.Env):
         self.a5 = 1#(2-self.a1)
         self.a6 = 0.75#(self.a1*0.5)
         self.a7 = 0
-        self.a8 = 0.4#self.a1-0.9
+        self.a8 = 0.1#self.a1-0.9
         self.rop_threshold = 0
         self.counter = 0
 
@@ -374,53 +377,67 @@ class BYMemory(gym.Env):
         return number != number
 
     def check_wob(self, wob):
-        if wob > self.MAX_WOB:
-            return self.MAX_WOB
+        if wob > self.MAX_WOB or wob < 0:
+            reward_2 = -10
         else:
-            return wob
+            reward_2 = 0
+        return reward_2
     def check_rpm(self, rpm):
-        if rpm > self.MAX_RPM:
-            return self.MAX_RPM
+        if rpm > self.MAX_RPM or rpm < 0:
+            reward_2 = -10
         else:
-            return rpm
+            reward_2 = 0
+        return reward_2
     def check_q(self, q):
-        if q > self.MAX_Q:
-            return self.MAX_Q
+        if q > self.MAX_Q or q < 0:
+            reward_2 = -10
         else:
-            return q
-    
+            reward_2 = 0
+        return reward_2
 
     def step(self, action):
-        self.state[1] = self.state[0]
-        self.state[3] = self.state[2]
-        self.state[5] = self.state[4]
-        self.state[7] = self.state[6]
+        
+        for i in range(0,-3,-1):
+            #wob memory
+            self.state[i+3] = self.state[i+2]
+            #rpm memory
+            self.state[i+7] = self.state[i+6]
+            #q memory
+            self.state[i+11] = self.state[i+10]
+            #rop memory
+            self.state[i+15] = self.state[i+14]
 
         depth = self.depth
         rates = self.actionToValue(action)
         self.state[0] += rates[0]
-        self.state[2] += rates[1]
-        self.state[4] += rates[2]
+        self.state[4] += rates[1]
+        self.state[8] += rates[2]
+        rop = rate_of_penetration_modv3(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,depth,self.gp,self.rho,self.state[0],self.wob_init,self.db,self.db_init,self.state[4] ,self.h,self.state[8],self.v, self.a11, self.a22, self.a33)
         
-        rop = rate_of_penetration_modv3(self.a1,self.a2,self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,depth,self.gp,self.rho,self.state[0],self.wob_init,self.db,self.db_init,self.state[2] ,self.h,self.state[4],self.v, self.a11, self.a22, self.a33)
-        
+        #some hard constraints on rop and depth
         if self.check_for_nan(rop):
             rop = 0
         if rop < 0:
             self.depth += 0
         else:    
             self.depth += rop*self.delta_t            
-        self.state[6] = rop     
-        difference = np.diff([self.state[7], self.state[6]])
-        reward_1 = difference[0]
+        
+        #soft constraints on input variables
 
+        self.state[12] = rop
+        reward_2 = 0     
+        
+        difference = np.diff([self.state[13], self.state[12]])
+        reward_1 = difference[0]
+        
 
         self.last_rop = rop
         self.num_it += 1
         done = self.isDone()
         
         if done == True:
-            reward_2 = 3000 - self.num_it
+            print(self.state)
+            reward_2 = 100000*(1/self.num_it)
         else:
             reward_2 = 0
         reward = reward_1 + reward_2
@@ -428,12 +445,13 @@ class BYMemory(gym.Env):
         self.counter = self.useless_counter(rop,self.counter)
         
 
-        if self.counter >= 10:
-            reward = -100
+        if self.counter >= 100:
+            reward = -1000
             done = True
             #self.state = np.array([50,50,50,0],dtype = np.float32)
  
         self.reward = reward
+        print(self.state)
         return self.state, reward, done, {}
 
     def isDone(self):
@@ -443,32 +461,18 @@ class BYMemory(gym.Env):
         print(self.state)
     
     def useless_counter(self, rop, counter):
-        if rop == 0:
+        if rop <= 0:
             counter += 1
         else:
             counter = 0
         return counter
 
     def reset(self):
-        #random_reset = random.uniform(1,20)
-        #if random_reset == 10:
-        #    print('random')
-        #    self.state = np.array([10,10,10,0],dtype=np.float32)
-        #else:
-        self.state = np.array([0,0,0,0,0,0,0,0], dtype = np.float32)
+        self.state = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], dtype = np.float32)
         self.rop_max = 0
         self.reward = 0
-        #self.a1 = 1
-        #self.a5 =(2-self.a1)
-        #self.a2 = 0
-        #self.a3 = 0
-        #self.a4 = 0
-        #self.a6 = (self.a1*0.5)
-        #self.a8 = self.a1-0.9
         self.num_it = 0
         self.depth = 0
-        #self.depth_final = random.randint(50,250)
-        #self.depth_final = 100
         self.counter = 0
         self.rop_threshold = 0
         return self.state

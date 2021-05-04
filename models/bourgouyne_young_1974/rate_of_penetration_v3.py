@@ -48,7 +48,11 @@ def isFounder(operational_parameter, parameter_constant, hardness):
 
 
 def rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33):
-    return f1(a1)*f5(a5, wob, wob_init, db, db_init,a11)*f6(a6, rpm, a22)*f8(a8, rho,q,v, a33)
+    temp = f1(a1)*f5(a5, wob, wob_init, db, db_init,a11)*f6(a6, rpm, a22)*f8(a8, rho,q,v, a33)
+    #if temp == 0:
+    #    return (abs(q) + abs(wob) + abs(rpm)) - 1.05*(abs(q) + abs(wob) + abs(rpm))
+    #else:
+    return temp
 
 '''
 def rate_of_penetration_modv3(a1,a2,a3,a4,a5,a6,a7,a8,depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, a11, a22, a33, f5_last, f6_last):

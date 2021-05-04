@@ -30,14 +30,14 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
         print(model)
         if case == 'test_model':
             print(case)
-            a1 = 1.0
+            a1 = 1.5
             a2 = 0
             a3 = a2
             a4 = a2
             a7 = a2
-            a5 = 2-a1
-            a6 = a1*0.5
-            a8 = a1-0.9
+            a5 = 1
+            a6 = 0.75
+            a8 = 0.1
             rpm = 60
             wob_m = 0
             rpm_m = 0
@@ -48,7 +48,7 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             wob_part = rop
             rpm_part = rop
             wob =111
-            rpm = 204
+            rpm = 214
             q = 87
             a11 = 0.005
             a22 = 0.005
