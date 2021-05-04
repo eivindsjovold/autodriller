@@ -528,7 +528,7 @@ class EckelMemory1(gym.Env):
     def __init__(self):
         self.viewer = True
         #self.K = random.uniform(self.lb_k, self.ub_k)
-        self.K = 0.7
+        self.K = 1.5
         self.state = np.array([5,5,5,5,5,5,0,0], dtype = np.float32)
         self.reward = 0
         self.last_rop = 0

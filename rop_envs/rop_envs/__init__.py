@@ -51,5 +51,11 @@ register(id = 'memory-eckel-v0',
 
 register(id = 'memory-by-v0',
         entry_point = 'rop_envs.envs:BYMemory')
+register(id = 'wob-v0',
+        entry_point = 'rop_envs.envs:WOBEnv1')
+register(id = 'rpm-v0',
+        entry_point = 'rop_envs.envs:RPMEnv1')
+register(id = 'q-v0',
+        entry_point = 'rop_envs.envs:QEnv1')
 
 

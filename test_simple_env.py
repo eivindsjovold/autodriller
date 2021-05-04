@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 from stable_baselines3.common.env_checker import check_env
 from models.simple_model import rop_multi
 import numpy as np
-import tensorflow
-import tensorboard
+#import tensorflow
+#import tensorboard
 
 env = gym.make('simple-v2')
 vec_env = make_vec_env('simple-v1', n_envs = 8)
@@ -19,8 +19,8 @@ savestring = 'trained_agents\\test_simple_optimum_multivariate_multiplicate'
 loadstring = 'trained_agents\\test_simple_optimum_multivariate'
 
 if case == 'train':
-    model = A2C(MlpPolicy, env, verbose = 1, tensorboard_log='./tensorboard_logs')
-    model.learn(total_timesteps=250000, tb_log_name='simple_model_multivariate')
+    model = A2C(MlpPolicy, env, verbose = 1)#, tensorboard_log='./tensorboard_logs')
+    model.learn(total_timesteps=250000)#, tb_log_name='simple_model_multivariate')
     model.save(savestring)
 
 elif case == 'load':
@@ -34,7 +34,7 @@ elif case == 'load':
     count = []
     iteration = []
     rewards = []
-    for i in range(3):
+    for i in range(1):
         print('iteration', i)
         done = False
         obs = env.reset()
@@ -47,7 +47,7 @@ elif case == 'load':
             rewards.append(reward)
             counter += 1
             iteration.append(counter)
-        #optimal.append(info)
+        optimal.append(info)
         count.append(counter)
     plt.subplot(311)
     plt.plot(rop)
@@ -55,7 +55,7 @@ elif case == 'load':
     plt.subplot(312)
     plt.plot(wob, color ='blue', linestyle = 'dashed')
     plt.hlines(optimal[0],0,count[0], colors = 'red', linestyles = '--')
-    plt.hlines(optimal[1],count[0],count[1], colors = 'orange', linestyles = '--')
+    #plt.hlines(optimal[1],count[0],count[1], colors = 'orange', linestyles = '--')
     plt.subplot(313)
     plt.scatter(iteration, rewards)
     plt.show()
@@ -106,7 +106,7 @@ elif case == 'multivariate':
     count = []
     iteration = []
     rewards = []
-    for i in range(3):
+    for i in range(1):
         done = False
         obs = env.reset()
         while not done:

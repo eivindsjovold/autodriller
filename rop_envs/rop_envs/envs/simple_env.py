@@ -10,12 +10,12 @@ class SimpleEnv1(gym.Env):
     metadata = {'render.modes': ['human', 'ansi']}
     mode = 'human'
     MAX_WOB = 200
-    depth_final = 200
+    depth_final = 100
 
 
     def __init__(self):
         self.viewer = True
-        self.wob_opt = 25
+        self.wob_opt = 20
         self.state = np.array([0,0,0,0], dtype = np.float32)
         self.reward = 0
         self.delta_t = 1/3600
@@ -241,7 +241,7 @@ class SimpleEnv3(gym.Env):
         self.state[5] = self.state[5]
         self.state[4] += rates[2] 
         
-        r = self.K*rop_multi(self.state[0],self.state[2], self.state[4], self.wob_opt, self.rpm_opt, self.q_opt)
+        r = rop_multi(self.state[0],self.state[2], self.state[4], self.wob_opt, self.rpm_opt, self.q_opt)
         self.state[7] = self.state[6]
         self.state[6] = r
         

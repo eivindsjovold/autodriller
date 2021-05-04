@@ -3,7 +3,7 @@ import gym
 import random
 from gym import spaces
 
-from models.bourgouyne_young_1974.rate_of_penetration_v3 import rate_of_penetration_modv3
+from models.bourgouyne_young_1974.rate_of_penetration_v3 import rate_of_penetration_modv3, f5, f6,f8
 
 
 class BYEnv(gym.Env):
@@ -471,4 +471,290 @@ class BYMemory(gym.Env):
         #self.depth_final = 100
         self.counter = 0
         self.rop_threshold = 0
+        return self.state
+
+
+class WOBEnv1(gym.Env):
+    MAX_WOB = 200
+    MAX_RPM = 300
+    MAX_Q = 400
+    depth = 0.0 #feet
+    rho = 22 
+    wob_init = 0.1 #10^3 lbf/in 
+    gp = 1.0        #lbm/gal
+    db = 1.0
+    db_init = db    #bit outer diameter in inches
+    delta_t = 1/3600 #hrs
+    h = 0.0001
+    v = 10  #feet/s
+    a11 = 0.005
+    a22 = 0.005
+    a33 = 0.005
+    tolerance = 4
+
+    def __init__(self):
+        self.depth_final = 150
+        self.depth = 0
+        self.viewer = True
+        self.state = np.array([10,10,10,10], dtype = np.float32)
+        self.reward = 0
+        self.rop_max = 0
+        self.last_rop = 0
+        self.num_it = 0
+        high = np.array([self.MAX_WOB, self.MAX_WOB,10000, 10000], dtype = np.float32)
+        low = np.array([0,0,0,0], dtype = np.float32)
+        self.observation_space = spaces.Box(low = low, high = high, dtype = np.float32)
+        self.action_space = spaces.Discrete(3)
+        #self.a1 = random.uniform(1.0,1.5)
+        self.a1 = 1
+        self.a2 = 0
+        self.a3 = 0
+        self.a4 = 0
+        self.a5 = 1#(2-self.a1)
+        self.a6 = 0.75#(self.a1*0.5)
+        self.a7 = 0
+        self.a8 = 0.4#self.a1-0.9
+        self.rop_threshold = 0
+        self.counter = 0
+
+    
+    def actionToValue(self, action):
+        if action == 0:
+                rates = -1
+        elif action == 1:
+                rates = 0
+        elif action == 2:
+                rates = 1
+        return rates
+    
+    def isDone(self):
+        return not self.depth < self.depth_final
+
+    def step(self, action):
+        rates = self.actionToValue(action)
+        #prev wob
+        self.state[1] = self.state[0]
+        #current wob
+        self.state[0] += rates
+        r = f5(self.a5, self.state[0], self.wob_init, self.db, self.db_init,self.a11)
+        self.state[3] = self.state[2]
+        self.state[2] = r
+        if self.state[2] > self.state[3]:
+            reward_1 = 1
+        elif self.state[2] < self.state[3]:
+            reward_1 = -1
+        else:
+            reward_1 = 0
+
+        self.depth += self.state[2]*self.delta_t
+        reward = reward_1
+        self.counter = self.useless_counter(r,self.counter)
+        done = self.isDone()
+
+        if self.counter >= 10:
+            reward = -1000
+            done = True
+        self.reward = reward
+        print(self.state)
+        return self.state, reward, done, {}
+
+
+
+    def check_for_nan(self,number):
+        return number != number
+
+
+
+    def render(self, mode = 'human'):
+        self.plots.append(self.state)
+        print(self.state)
+        print(self.reward)
+        return self.plots
+    
+    def useless_counter(self, rop, counter):
+        if rop == 0:
+            counter += 1
+        else:
+            counter = 0
+        return counter
+
+    def reset(self):
+        self.state = np.array([10,10,0,0], dtype = np.float32)
+        self.depth = 0
+        self.counter = 0
+        return self.state
+
+
+
+class RPMEnv1(gym.Env):
+    plots = []
+    metadata = {'render.modes': ['human', 'ansi']}
+    mode = 'human'
+    MAX_WOB = 200
+    depth_final = 100
+
+
+    def __init__(self):
+        self.viewer = True
+        self.state = np.array([0,0,0,0], dtype = np.float32)
+        self.reward = 0
+        self.delta_t = 1/3600
+        high = np.array([self.MAX_WOB, self.MAX_WOB, 100000, 100000], dtype = np.float32)
+        low = np.array([0,0,0,0], dtype = np.float32)
+        self.observation_space = spaces.Box(low = low, high = high, dtype = np.float32)
+        #down, stay, up
+        self.action_space = spaces.Discrete(3)
+
+
+    
+    def actionToValue(self, action):
+        if action == 0:
+                rates = -1
+        elif action == 1:
+                rates = 0
+        elif action == 2:
+                rates = 1
+        return rates
+    
+    def isDone(self):
+        return not self.depth < self.depth_final
+
+    def step(self, action):
+        rates = self.actionToValue(action)
+        #prev wob
+        self.state[1] = self.state[0]
+        #current wob
+        self.state[0] += rates
+        r = rop(self.state[0], self.wob_opt)
+        self.state[3] = self.state[2]
+        self.state[2] = r
+        if self.state[2] > self.state[3]:
+            reward_1 = 1
+        elif self.state[2] < self.state[3]:
+            reward_1 = -1
+        else:
+            reward_1 = 0
+
+        self.depth += self.state[2]*self.delta_t
+        reward = reward_1
+        self.counter = self.useless_counter(rop,self.counter)
+        done = self.isDone()
+
+        if self.counter >= 10:
+            reward = -1000
+            done = True
+        self.reward = reward
+        return self.state, reward, done, self.wob_opt
+
+
+
+    def check_for_nan(self,number):
+        return number != number
+
+
+
+    def render(self, mode = 'human'):
+        self.plots.append(self.state)
+        print(self.state)
+        print(self.reward)
+        return self.plots
+    
+    def useless_counter(self, rop, counter):
+        if rop == 0:
+            counter += 1
+        else:
+            counter = 0
+        return counter
+
+    def reset(self):
+        self.state = np.array([0,0,0,0], dtype = np.float32)
+        self.depth = 0
+        self.counter = 0
+        return self.state
+
+class QEnv1(gym.Env):
+    plots = []
+    metadata = {'render.modes': ['human', 'ansi']}
+    mode = 'human'
+    MAX_WOB = 200
+    depth_final = 100
+
+
+    def __init__(self):
+        self.viewer = True
+        self.wob_opt = 300
+        self.state = np.array([0,0,0,0], dtype = np.float32)
+        self.reward = 0
+        self.delta_t = 1/3600
+        high = np.array([self.MAX_WOB, self.MAX_WOB, 100000, 100000], dtype = np.float32)
+        low = np.array([0,0,0,0], dtype = np.float32)
+        self.observation_space = spaces.Box(low = low, high = high, dtype = np.float32)
+        #down, stay, up
+        self.action_space = spaces.Discrete(3)
+
+
+    
+    def actionToValue(self, action):
+        if action == 0:
+                rates = -1
+        elif action == 1:
+                rates = 0
+        elif action == 2:
+                rates = 1
+        return rates
+    
+    def isDone(self):
+        return not self.depth < self.depth_final
+
+    def step(self, action):
+        rates = self.actionToValue(action)
+        #prev wob
+        self.state[1] = self.state[0]
+        #current wob
+        self.state[0] += rates
+        r = rop(self.state[0], self.wob_opt)
+        self.state[3] = self.state[2]
+        self.state[2] = r
+        if self.state[2] > self.state[3]:
+            reward_1 = 1
+        elif self.state[2] < self.state[3]:
+            reward_1 = -1
+        else:
+            reward_1 = 0
+
+        self.depth += self.state[2]*self.delta_t
+        reward = reward_1
+        self.counter = self.useless_counter(rop,self.counter)
+        done = self.isDone()
+
+        if self.counter >= 10:
+            reward = -1000
+            done = True
+        self.reward = reward
+        return self.state, reward, done, self.wob_opt
+
+
+
+    def check_for_nan(self,number):
+        return number != number
+
+
+
+    def render(self, mode = 'human'):
+        self.plots.append(self.state)
+        print(self.state)
+        print(self.reward)
+        return self.plots
+    
+    def useless_counter(self, rop, counter):
+        if rop == 0:
+            counter += 1
+        else:
+            counter = 0
+        return counter
+
+    def reset(self):
+        self.state = np.array([0,0,0,0], dtype = np.float32)
+        self.depth = 0
+        self.counter = 0
         return self.state

@@ -149,11 +149,11 @@ def simulation(depth,gp,rho,wob,wob_init,db,db_init,rpm,h,q,v, depth_final, delt
             depth = 0
             depth_final = 40
             model_parameters = [a,b,c,k,K]
-            rpm = 97
-            wob = 33
+            rpm = 115
+            wob = 50
             q = 130
             for i in range(0,400):#while depth < depth_final:
-                rop = rate_of_penetration_eckel_vary_founder(a,b,c,1, k, wob, rpm, q, rho, db, my, a11, a22, a33)
+                rop = rate_of_penetration_eckel_vary_founder(a,b,c,0.5, k, wob, rpm, q, rho, db, my, a11, a22, a33)
                 depth += rop*delta_t
                 t += delta_t
                 rop_dict.append(rop)
