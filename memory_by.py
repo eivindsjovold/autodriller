@@ -1,3 +1,4 @@
+import os
 import gym
 import rop_envs
 import csv
@@ -9,20 +10,29 @@ from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.sb2_compat.rmsprop_tf_like import RMSpropTFLike
+from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv, SubprocVecEnv
 import matplotlib.pyplot as plt
-#import tensorflow as tf
+import tensorflow as tf
 import numpy as np
-#import tensorboard
+import tensorboard
 # Prøv å trene på lave verdier
 
-env = gym.make('memory-by-v0')
-vec_env = make_vec_env('memory-by-v0', n_envs=16)
+env = DummyVecEnv([lambda: gym.make('memory-by-v0')])
+env = VecNormalize(env)
 
+vec_env = make_vec_env('memory-by-v0', n_envs=16)
+vec_env = VecNormalize(vec_env)
 
 case = 'load'
-savestring = 'trained_agents\\memory_by_4_may'
-loadstring = 'trained_agents\\memory_by_4_may'
+stat_logdir = 'statistics_normalization/'
+agent_logdir = 'trained_agents/'
 
+
+savestring = agent_logdir + 'memory_by_5_may_normalization'
+loadstring = agent_logdir + 'memory_by_5_may_normalization'
+stats_path = os.path.join(stat_logdir, 'bymemory1.pkl')
+
+env = vec_env
 
 wob_dict = []
 rpm_dict = []
@@ -41,51 +51,62 @@ delta_t = 1/3600
 
 if case == 'train':
     print(case)
-    model = A2C(MlpPolicy, vec_env, verbose = 1, policy_kwargs=dict(optimizer_class=RMSpropTFLike, optimizer_kwargs = dict(alpha = 0.99, eps = 1e-5, weight_decay = 0)))#, tensorboard_log='./tensorboard_logs')
-    model.learn(total_timesteps = 500000)#, tb_log_name='memory_eckel')
+    model = A2C(MlpPolicy, env, verbose = 1, policy_kwargs=dict(optimizer_class=RMSpropTFLike, optimizer_kwargs = dict(alpha = 0.99, eps = 1e-5, weight_decay = 0)), tensorboard_log='./tensorboard_logs')
+    model.learn(total_timesteps = 3000000, tb_log_name='memory_eckel')
     model.save(savestring)
+    vec_env.save(stats_path)
 
 elif case == 'train_more':
     print(case)
-    model = A2C.load(loadstring,  policy_kwargs=dict(optimizer_class=RMSpropTFLike, optimizer_kwargs = dict(alpha = 0.99, eps = 1e-5, weight_decay = 0)))
-    model.set_env(vec_env)
-    model.learn(total_timesteps=2500000)
+    model = A2C.load(loadstring)#,  policy_kwargs=dict(optimizer_class=RMSpropTFLike, optimizer_kwargs = dict(alpha = 0.99, eps = 1e-5, weight_decay = 0)))
+    env = DummyVecEnv([lambda: gym.make('memory-by-v0')])
+    env = VecNormalize.load(stats_path, env)
+    model.set_env(env)
+    model.learn(total_timesteps=500000)
     model.save(savestring)
+    env.save(stats_path)
 
 elif case == 'load':
+    print(stats_path)
+    print(loadstring)
     model = A2C.load(loadstring)
+    env = DummyVecEnv([lambda: gym.make('memory-by-v0')])
+    env = VecNormalize.load(stats_path, env)
+    env.training = True
+    env.norm_reward = False
     counter = 0
     depth = 0
-    #mean_rew, std_rew = evaluate_policy(model, env, n_eval_episodes=10)
-    #print(mean_rew, std_rew)
-
+    normalized_observations = []
+    # Loop through normalized agent
     for i in range(1):
         done = False
         obs = env.reset()
+        #print(obs)
         while not done:
             counter += 1
             time += 1/3600
             action, _states = model.predict(obs)
-            obs, rewards, done, info = env.step(action)
-            env.render()
-            wob = obs[0]
-            rpm = obs[4]
-            q = obs[8]
-            rop = obs[12]
-            depth += rop*delta_t
-            rop_dict.append(rop)
-            time_dict.append(time)
-            wob_dict.append(wob)
-            rpm_dict.append(rpm)
-            q_dict.append(q)
-            depth_dict.append(depth)
+            obs, rewards, done, info = env.step(action)   
+            normalized_observations.append(obs)
             reward.append(rewards)
-            iteration.append(counter)
-    print(counter)
-    print(sum(reward))
+    #unnormalize observations and plot. Might be some errors in running averages
+    for i in range(len(normalized_observations)-1):
+        obs = env.unnormalize_obs(normalized_observations[i])
+        wob = obs[0][0]
+        rpm = obs[0][4]
+        q = obs[0][8]
+        rop = obs[0][12]
+        depth += rop*delta_t
+        rop_dict.append(rop)
+        time_dict.append(time)
+        wob_dict.append(wob)
+        rpm_dict.append(rpm)
+        q_dict.append(q)
+        depth_dict.append(depth)
+        iteration.append(counter)
     fig, ax = plt.subplots(5)
     fig.suptitle('RL agent inspired by extremum seeking')
-    ax[0].plot(iteration, rop_dict)
+    ax[0].plot(rop_dict)
     ax[0].plot([0,iteration[-1]],[339.885475592095,339.8854755920957])
     ax[0].set_title('ROP[ft/hr]')
     ax[1].plot(wob_dict)

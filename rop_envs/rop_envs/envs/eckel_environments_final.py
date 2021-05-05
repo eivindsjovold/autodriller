@@ -528,7 +528,7 @@ class EckelMemory1(gym.Env):
     def __init__(self):
         self.viewer = True
         #self.K = random.uniform(self.lb_k, self.ub_k)
-        self.K = 1.5
+        self.K = 0.5
         self.state = np.array([5,5,5,5,5,5,0,0], dtype = np.float32)
         self.reward = 0
         self.last_rop = 0
@@ -622,8 +622,6 @@ class EckelMemory1(gym.Env):
             done = True
         self.reward = reward
         self.num_steps += 1
-        if self.num_steps % 250 == 0:
-            print(self.state)
         return self.state, reward, done, {}
 
 
@@ -649,6 +647,7 @@ class EckelMemory1(gym.Env):
         self.state = np.array([0,0,0,0,0,0,0,0], dtype = np.float32)
         #self.state = self.state
         #self.depth_final = random.uniform(50, 250)
+        #self.K = 1
         self.depth = 0
         self.counter = 0
         self.num_steps = 0

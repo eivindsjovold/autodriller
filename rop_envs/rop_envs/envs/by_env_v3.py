@@ -435,23 +435,23 @@ class BYMemory(gym.Env):
         self.num_it += 1
         done = self.isDone()
         
-        if done == True:
-            print(self.state)
-            reward_2 = 100000*(1/self.num_it)
-        else:
-            reward_2 = 0
-        reward = reward_1 + reward_2
+        #if done == True:
+        #    print(self.state)
+        #    reward_2 = 100000*(1/self.num_it)
+        #else:
+        #    reward_2 = 0
+        reward = reward_1# + reward_2
         
         self.counter = self.useless_counter(rop,self.counter)
-        
+        #if done == True:
+        #    print(self.state)
 
-        if self.counter >= 100:
+        if self.counter >= 10:
             reward = -1000
             done = True
             #self.state = np.array([50,50,50,0],dtype = np.float32)
  
         self.reward = reward
-        print(self.state)
         return self.state, reward, done, {}
 
     def isDone(self):
